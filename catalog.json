@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-25T16:47:16.577Z",
+  "repository": {
+    "name": "luminar-apify-examples",
+    "status": "LOCAL_HASH_LOCKED_STAGING",
+    "remoteUrl": null,
+    "commitSha": null,
+    "approvalGranted": false,
+    "publicReadback": "NOT_RUN"
+  },
+  "actorCount": 1,
+  "actors": [
+    {
+      "actorKey": "booking_hotels",
+      "actorRef": "luminar/booking-hotels-scraper-private-v1",
+      "title": "Booking.com Hotel Scraper: Search & Stay Prices",
+      "storeUrl": "https://apify.com/luminar/booking-hotels-scraper-private-v1",
+      "sourceLockSha256": "7682676892835cb05b1dfeeed4eacf3ee902efc9ab906672061d8e5e9401961e",
+      "manifestPath": "actors/booking-hotels-scraper-private-v1/manifest.json"
+    }
+  ]
+}

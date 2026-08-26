@@ -1,0 +1,19 @@
+{
+  "destination": "Tivat, Montenegro",
+  "checkIn": "2026-09-15",
+  "checkOut": "2026-09-17",
+  "adults": 2,
+  "rooms": 1,
+  "children": 0,
+  "maxProperties": 20,
+  "mode": "fast",
+  "flexibleDays": "0",
+  "currency": "EUR",
+  "language": "en-gb",
+  "maxPagesPerTarget": 1,
+  "maxRequests": 5,
+  "maxRuntimeSecs": 120,
+  "maxCostUsd": 0.1,
+  "requestTimeoutSecs": 35,
+  "maxRetries": 1
+}

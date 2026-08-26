@@ -1,0 +1,23 @@
+{
+  "sampleType": "ILLUSTRATIVE_FROM_CANONICAL_README",
+  "canonicalReadmeSha256": "cb9ecdab1102e1425676540b89227db1c85ebd43048c7ac5fb6a119a01dacb94",
+  "rows": [
+    {
+      "recordType": "property",
+      "propertyId": "10001",
+      "canonicalUrl": "https://www.booking.com/hotel/me/alpha.html",
+      "name": "Hotel Alpha",
+      "locationText": "Tivat, Montenegro",
+      "stars": 4,
+      "guestReviewScore": 8.7,
+      "guestReviewCount": 1234,
+      "availabilityStatus": "available_search_card",
+      "stayTotalAmount": 312,
+      "stayNights": 2,
+      "nightlyAmount": 156,
+      "priceCurrency": "EUR",
+      "priceBasis": "search_card_total_for_stay",
+      "checkoutVerified": false
+    }
+  ]
+}

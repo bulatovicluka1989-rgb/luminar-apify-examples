@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "actorKey": "booking_hotels",
+  "actorRef": "luminar/booking-hotels-scraper-private-v1",
+  "title": "Booking.com Hotel Scraper: Search & Stay Prices",
+  "storeUrl": "https://apify.com/luminar/booking-hotels-scraper-private-v1",
+  "sourceLock": {
+    "status": "READY",
+    "sha256": "7682676892835cb05b1dfeeed4eacf3ee902efc9ab906672061d8e5e9401961e",
+    "canonicalReadmeSha256": "cb9ecdab1102e1425676540b89227db1c85ebd43048c7ac5fb6a119a01dacb94",
+    "inputSchemaSha256": "2549308371fbc67781c6cf8ebec519f5506a830bfc8b27158a4e61b8839bc8aa",
+    "datasetSchemaSha256": "fa67341b7d025f958d3d8fd899f4104d713c2c476a0a017ca9d80253ccfdfaa4"
+  },
+  "quickStartTaskSlug": "export-booking-hotels-for-stay-dates",
+  "sampleOrigin": "CANONICAL_README_ILLUSTRATIVE",
+  "runtimeContract": {
+    "actorRetries": 0,
+    "terminalStatusChecked": true,
+    "runUrlPreserved": true,
+    "datasetPagination": true,
+    "tokenSource": "APIFY_TOKEN_ENVIRONMENT"
+  },
+  "files": [
+    "actors/booking-hotels-scraper-private-v1/README.md",
+    "actors/booking-hotels-scraper-private-v1/manifest.json",
+    "actors/booking-hotels-scraper-private-v1/inputs/quick-start.json",
+    "actors/booking-hotels-scraper-private-v1/outputs/sample.json",
+    "actors/booking-hotels-scraper-private-v1/javascript/run.mjs",
+    "actors/booking-hotels-scraper-private-v1/python/run.py",
+    "actors/booking-hotels-scraper-private-v1/powershell/run.ps1"
+  ]
+}
