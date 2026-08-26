@@ -16,7 +16,7 @@
       "actorRef": "luminar/booking-hotels-scraper-private-v1",
       "title": "Booking.com Hotel Scraper: Search & Stay Prices",
       "storeUrl": "https://apify.com/luminar/booking-hotels-scraper-private-v1",
-      "sourceLockSha256": "7682676892835cb05b1dfeeed4eacf3ee902efc9ab906672061d8e5e9401961e",
+      "sourceLockSha256": "c33094510c6c881a160b136f1f929fb943766aab1906d3e23cb8e187f31592fc",
       "manifestPath": "actors/booking-hotels-scraper-private-v1/manifest.json"
     }
   ]

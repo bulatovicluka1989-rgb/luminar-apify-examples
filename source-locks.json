@@ -5,12 +5,12 @@
     {
       "actorKey": "booking_hotels",
       "actorRef": "luminar/booking-hotels-scraper-private-v1",
-      "sourceLockSha256": "7682676892835cb05b1dfeeed4eacf3ee902efc9ab906672061d8e5e9401961e",
+      "sourceLockSha256": "c33094510c6c881a160b136f1f929fb943766aab1906d3e23cb8e187f31592fc",
       "canonicalReadmeSha256": "cb9ecdab1102e1425676540b89227db1c85ebd43048c7ac5fb6a119a01dacb94",
       "files": {
         "actors/booking-hotels-scraper-private-v1/inputs/quick-start.json": "bac99b4ba853a0f0e957a42230c9b36f805eea272aeea889273a6a5037465902",
         "actors/booking-hotels-scraper-private-v1/javascript/run.mjs": "8d80d7e0b4b326a385e4de5f029fddd3847fd701ab0f5964aabfb22bf3ff9837",
-        "actors/booking-hotels-scraper-private-v1/manifest.json": "3232939aea5ed903cc9a1dfe4d79eb8e21b42c7baa6aca26207ee6b4fb2d7505",
+        "actors/booking-hotels-scraper-private-v1/manifest.json": "9e7569d27cdfddba48a796d30e72eba692f9a5ef719c0e4e58ac7de4fe735d6e",
         "actors/booking-hotels-scraper-private-v1/outputs/sample.json": "23eba0d005a9016d1a69d39e00e80b9157b3a37e6628f5bf6f5108e19dbd7817",
         "actors/booking-hotels-scraper-private-v1/powershell/run.ps1": "813e64933976664d55eff7ed0dc22fe00e5fdf6a10309b1355ed63dc3b39dcab",
         "actors/booking-hotels-scraper-private-v1/python/run.py": "f437f6d08883e1fabd8bd463e1279c6b28a91a270491218d2d8eb11b4d56cfcc",
