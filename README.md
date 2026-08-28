@@ -9,6 +9,7 @@ This tree is a local, hash-locked publication candidate. No GitHub repository, c
 | Example | Actor | Store |
 |---|---|---|
 | [Booking.com Hotel Scraper: Search & Stay Prices](actors/booking-hotels-scraper-private-v1/README.md) | `luminar/booking-hotels-scraper-private-v1` | [Open Actor](https://apify.com/luminar/booking-hotels-scraper-private-v1) |
+| [GLEIF LEI Lookup & Entity Change Monitor](actors/gleif-lei-change-monitor/README.md) | `luminar/gleif-lei-change-monitor` | [Open Actor](https://apify.com/luminar/gleif-lei-change-monitor) |
 
 ## Run an example
 

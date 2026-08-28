@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-25T16:47:16.577Z",
+  "generatedAt": "2026-08-27T12:31:44.002Z",
   "actors": [
     {
       "actorKey": "booking_hotels",
@@ -15,6 +15,21 @@
         "actors/booking-hotels-scraper-private-v1/powershell/run.ps1": "813e64933976664d55eff7ed0dc22fe00e5fdf6a10309b1355ed63dc3b39dcab",
         "actors/booking-hotels-scraper-private-v1/python/run.py": "f437f6d08883e1fabd8bd463e1279c6b28a91a270491218d2d8eb11b4d56cfcc",
         "actors/booking-hotels-scraper-private-v1/README.md": "0fe4db7d08a62230ece23dc7672f483742d767de2a2cf52b22ce123d110a9554"
+      }
+    },
+    {
+      "actorKey": "gleif_lei_change_monitor",
+      "actorRef": "luminar/gleif-lei-change-monitor",
+      "sourceLockSha256": "711552f88aa22c450e7bb90cae3c64c1caa9e1f64e0fc41552b93b01afc4a210",
+      "canonicalReadmeSha256": "33d71d1b9d632b0b876aa061d7a45651ac687748b3ed9a117924466351d8cab1",
+      "files": {
+        "actors/gleif-lei-change-monitor/inputs/quick-start.json": "5c2ee371586659146ea6b2f40dd9e249bb494743fb42ee4d3f6568db240dd54e",
+        "actors/gleif-lei-change-monitor/javascript/run.mjs": "9b66912ef6d844481ae145adbc7b612c635408dce67be8456ed5b71f967214b9",
+        "actors/gleif-lei-change-monitor/manifest.json": "570127fde378f9373440510a63a6b75b6170118ef870ce857a3a282c08a473e8",
+        "actors/gleif-lei-change-monitor/outputs/sample.json": "ccd1af217dc56e5eb5fa3441f29fb6ca8c22fbfc1c2200ffafaab69af13620c8",
+        "actors/gleif-lei-change-monitor/powershell/run.ps1": "72939ec9d48765b7aa0cf381ec252ddcb8a1f245bd94a43edaec9d268783ca5b",
+        "actors/gleif-lei-change-monitor/python/run.py": "d97b3646a856e3f0f62ce2d8d52e7e3ec9fa0fac92291fb419127e51b827a06b",
+        "actors/gleif-lei-change-monitor/README.md": "ac2a073e598cd84106299915183261de15506bd7fd190cad2205d9931b80e746"
       }
     }
   ]

@@ -1,0 +1,15 @@
+{
+  "leis": [
+    "529900T8BM49AURSDO55"
+  ],
+  "mode": "baseline",
+  "includeRelationships": true,
+  "includeChildren": false,
+  "includeSuccessorsPredecessors": true,
+  "maxEntities": 5,
+  "maxRelationships": 20,
+  "maxRequests": 40,
+  "maxSourceBytes": 500000,
+  "maxRuntimeSecs": 120,
+  "maxBuyerChargeUsd": 0.1
+}

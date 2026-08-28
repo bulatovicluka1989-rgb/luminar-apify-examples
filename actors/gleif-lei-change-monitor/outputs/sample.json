@@ -1,0 +1,26 @@
+{
+  "sampleType": "ILLUSTRATIVE_FROM_CANONICAL_README",
+  "canonicalReadmeSha256": "33d71d1b9d632b0b876aa061d7a45651ac687748b3ed9a117924466351d8cab1",
+  "rows": [
+    {
+      "recordType": "change",
+      "stableId": "entity:529900T8BM49AURSDO55",
+      "changeId": "change:6bc3c6e8c8d4fbb7c9c8f193c502429fc777d13f5d0aa615",
+      "changeType": "UPDATED",
+      "lei": "529900T8BM49AURSDO55",
+      "legalName": "Example Entity GmbH",
+      "changedFields": [
+        "nextRenewalDate",
+        "registrationStatus"
+      ],
+      "before": {
+        "registrationStatus": "ISSUED"
+      },
+      "after": {
+        "registrationStatus": "LAPSED"
+      },
+      "observedAt": "2026-08-26T16:00:00.000Z",
+      "sourceUrl": "https://api.gleif.org/api/v1/lei-records/529900T8BM49AURSDO55"
+    }
+  ]
+}

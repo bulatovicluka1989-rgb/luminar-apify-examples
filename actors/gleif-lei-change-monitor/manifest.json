@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "actorKey": "gleif_lei_change_monitor",
+  "actorRef": "luminar/gleif-lei-change-monitor",
+  "title": "GLEIF LEI Lookup & Entity Change Monitor",
+  "storeUrl": "https://apify.com/luminar/gleif-lei-change-monitor",
+  "sourceLock": {
+    "status": "READY",
+    "sha256": "711552f88aa22c450e7bb90cae3c64c1caa9e1f64e0fc41552b93b01afc4a210",
+    "canonicalReadmeSha256": "33d71d1b9d632b0b876aa061d7a45651ac687748b3ed9a117924466351d8cab1",
+    "inputSchemaSha256": "43ada330dc5cd529187b0892b7c0e18b54a8511722eb7a1c39c69c7435072215",
+    "datasetSchemaSha256": "4e7defec0369a4ba316944ee0e172e1f7ac65aaac2dfad76789fb83e5ee42463"
+  },
+  "quickStartTaskSlug": "export-gleif-company-records",
+  "sampleOrigin": "CANONICAL_README_ILLUSTRATIVE",
+  "runtimeContract": {
+    "actorRetries": 0,
+    "terminalStatusChecked": true,
+    "runUrlPreserved": true,
+    "datasetPagination": true,
+    "tokenSource": "APIFY_TOKEN_ENVIRONMENT"
+  },
+  "files": [
+    "actors/gleif-lei-change-monitor/README.md",
+    "actors/gleif-lei-change-monitor/manifest.json",
+    "actors/gleif-lei-change-monitor/inputs/quick-start.json",
+    "actors/gleif-lei-change-monitor/outputs/sample.json",
+    "actors/gleif-lei-change-monitor/javascript/run.mjs",
+    "actors/gleif-lei-change-monitor/python/run.py",
+    "actors/gleif-lei-change-monitor/powershell/run.ps1"
+  ]
+}
