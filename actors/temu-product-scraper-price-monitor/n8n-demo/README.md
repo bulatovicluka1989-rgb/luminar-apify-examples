@@ -27,4 +27,4 @@ Two sequential, credentialed executions were tested on local n8n Community Editi
 
 These are bounded owner tests, not customer activity or a performance guarantee. Runtime depends on input and source availability. Local n8n orchestrates the workflow; the Actor runs on Apify and Apify usage charges apply. The template includes no credits. No n8n Cloud purchase was needed for the local test.
 
-The JSON is ready for direct import. Creator marketplace publication is a separate review process. [artifact-manifest.json](artifact-manifest.json) records the workflow and companion file hashes. No credentials or private Sheet destination are included.
+The JSON is ready for direct import. Submitted to n8n Creator review on 6 September 2026 as template **19279**; the confirmed status is **Under review**, not yet published. [artifact-manifest.json](artifact-manifest.json) records the workflow and companion file hashes. No credentials or private Sheet destination are included.
