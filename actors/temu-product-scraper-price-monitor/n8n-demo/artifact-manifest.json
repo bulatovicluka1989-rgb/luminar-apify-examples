@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "actor": "luminar/temu-product-scraper-price-monitor",
+  "buildId": "Hy2htFWnbJcwLiyHl",
+  "buildTag": "temu-release-20260906d",
+  "recordedAt": "2026-09-06",
+  "environment": "local n8n Community Edition 2.37.10",
+  "files": {
+    "workflow.json": "63cbfbb012223f3ecfce04405e4e959a64badef28c787f1329a7a46eadd55f7e",
+    "sheet-header.csv": "6a377cd4ef80066375d6479daf4ef383eb1234b37c87bfdbf5076f7e80c23d57",
+    "workflow.png": "14ad566e8f43ef1cbdb6ebf0f48cb9a5f3f4a8ba50c3b245ca78f6d23257bec1",
+    "README.md": "70aef0ae7d1ed3ca98c418c1ced03b9324cf8af44e0dfdb0832dd730f0ada6b2"
+  },
+  "validation": {
+    "credentialedRuns": 2,
+    "workflowSeconds": [
+      11.233,
+      29.213
+    ],
+    "actorSeconds": [
+      4.828,
+      23.907
+    ],
+    "rowsAfterFirst": 1,
+    "rowsAfterRepeat": 1,
+    "duplicateKeys": 0
+  },
+  "creatorStatus": "Not submitted; import the JSON directly."
+}
