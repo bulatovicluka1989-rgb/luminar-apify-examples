@@ -2,7 +2,11 @@
 
 Runnable, bounded JavaScript, Python, and PowerShell examples for production Luminar Actors. Every package is tied to an immutable Growth source lock and uses the public Apify API.
 
-This tree is a local, hash-locked publication candidate. No GitHub repository, commit, release, or public link is claimed until a separately approved push and remote read-back succeed.
+Examples are versioned with their release evidence. Check each example's version and recorded-data date before use.
+
+## n8n demonstration
+
+**[Booking.com → Google Sheets: hotel shortlist demo](actors/booking-hotels-scraper-private-v1/n8n-demo/README.md)** — five real saved hotel results, CSV, an interactive offline walkthrough, and the published n8n workflow with setup instructions. The recording is dated 26 August 2026; it does not claim current prices.
 
 ## Actors
 

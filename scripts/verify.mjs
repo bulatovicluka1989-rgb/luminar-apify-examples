@@ -28,6 +28,7 @@ const forbiddenTerms = [
   ['usage', '_audit.jsonl'].join(''),
 ];
 const allowedTop = new Set(['.github', 'README.md', 'SECURITY.md', 'actors', 'catalog.json', 'catalog.schema.json', 'runners', 'scripts', 'source-locks.json']);
+const allowedAssets = new Set(['assets/booking-hotels/booking-hotels-results.png']);
 
 async function exists(file) {
   try { await access(file); return true; } catch { return false; }
@@ -63,7 +64,7 @@ async function scan(relative) {
 
 const allFiles = await walk();
 for (const relative of allFiles) {
-  if (!allowedTop.has(relative.split('/')[0])) errors.push(`${relative}: path is outside the public allowlist`);
+  if (!allowedTop.has(relative.split('/')[0]) && !allowedAssets.has(relative)) errors.push(`${relative}: path is outside the public allowlist`);
   await scan(relative);
 }
 
