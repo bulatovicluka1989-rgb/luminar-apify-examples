@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "actor": "luminar/greenhouse-jobs-change-monitor",
+  "buildId": "eV9Sw25JLbxibku09",
+  "buildTag": "greenhouse-release-20260906f",
+  "recordedAt": "2026-09-06",
+  "environment": "local n8n Community Edition 2.37.10",
+  "files": {
+    "workflow.json": "c483c322a1860558d2635949607053cf719535381b4a501bee49a1c3488346a6",
+    "sheet-header.csv": "6593502193a92de37f2b6eb288a21181c251e1f05915b799e32aa9eebd47613f",
+    "README.md": "e2f97f3299bfad88d7da68ea1366f7bee1168cf2c6db6fd2849ef440c7e8f54c",
+    "workflow.png": "aa02c3aae6e188e8a913d28ff2f9529d91eead5ab47d536f734b66f5a2d84341"
+  },
+  "validation": {
+    "credentialedRuns": 2,
+    "rowsAfterFirst": 22,
+    "rowsAfterRepeat": 22,
+    "duplicateKeys": 0
+  },
+  "creatorStatus": "Prepared for submission; import the JSON directly."
+}

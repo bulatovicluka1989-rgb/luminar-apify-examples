@@ -6,6 +6,8 @@ Examples are versioned with their release evidence. Check each example's version
 
 ## n8n demonstration
 
+**[Greenhouse to Google Sheets: filtered job watch](actors/greenhouse-jobs-change-monitor/n8n-demo/README.md)** - track newly observed roles and confirmed closures using company and job filters. Two complete local tests retained 22 unique rows with no duplicate keys.
+
 **[Temu → Google Sheets: product watchlist](actors/temu-product-scraper-price-monitor/n8n-demo/README.md)** — importable workflow, header CSV and setup guide. Two local credentialed tests on 6 September 2026 updated the same product row without duplicates. This standalone n8n example is separate from the JavaScript/Python/PowerShell Actor catalog below.
 
 **[Booking.com → Google Sheets: hotel shortlist demo](actors/booking-hotels-scraper-private-v1/n8n-demo/README.md)** — five real saved hotel results, CSV, an interactive offline walkthrough, and the published n8n workflow with setup instructions. The recording is dated 26 August 2026; it does not claim current prices.
