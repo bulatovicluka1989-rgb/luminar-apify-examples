@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "actor": "luminar/luma-events-scraper-monitor",
+  "buildId": "9Y4UKtgpktmO9oBMm",
+  "buildTag": "release-20260903d",
+  "recordedAt": "2026-09-07T23:04:49.053Z",
+  "environment": "local n8n Community Edition 2.37.10",
+  "files": {
+    "README.md": "6e8907465ffa1b57cd4725a83bd17f1970d99eb6d3a28bf447c3b6b7d29fb717",
+    "workflow.json": "d934fec6f97c6964f8c54e2cd7f2ae984ad6d9e9f4adde51807076151937a846",
+    "sheet-header.csv": "4d6c04727805e5610528e975153e7041c2b5c43b232cfeed28957f7f3141691e",
+    "workflow.png": "49466c62af837c4ecd8e849b959722db489ac3f920ea36f296c5b9ea75e573fb"
+  },
+  "validation": {
+    "credentialedRuns": 2,
+    "rowsBefore": 0,
+    "rowsAfterFirst": 25,
+    "rowsAfterRepeat": 25,
+    "duplicateKeys": 0,
+    "coverage": [
+      "CAPPED",
+      "CAPPED"
+    ]
+  },
+  "creatorStatus": "Prepared for submission; import the JSON directly."
+}

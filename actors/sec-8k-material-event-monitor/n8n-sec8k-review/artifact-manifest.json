@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "actor": "luminar/sec-8k-material-event-monitor",
+  "buildId": "b93W2mTXEgih7p6LI",
+  "buildTag": "rel-sec8k-20260904v",
+  "recordedAt": "2026-09-07T23:04:49.045Z",
+  "environment": "local n8n Community Edition 2.37.10",
+  "files": {
+    "README.md": "580e007f2e50e0f361c3077d7e886c7c0bed862c766cb9a5647efe04e2212ab6",
+    "workflow.json": "c5023e5c59adc5107a1d54c63355851b6c07b14c67baba5c1c78437278042df6",
+    "sheet-header.csv": "e6846497bc3bd5dc135b763ab7c8c6dfa04765b74cd2a728c121782f215331d9",
+    "workflow.png": "5f8be12faccfdc56ce5ed5c18a2d03c263b12dc6dba307aa27225df2da213307"
+  },
+  "validation": {
+    "credentialedRuns": 2,
+    "rowsBefore": 0,
+    "rowsAfterFirst": 25,
+    "rowsAfterRepeat": 25,
+    "duplicateKeys": 0,
+    "coverage": [
+      "CAPPED",
+      "CAPPED"
+    ]
+  },
+  "creatorStatus": "Prepared for submission; import the JSON directly."
+}
