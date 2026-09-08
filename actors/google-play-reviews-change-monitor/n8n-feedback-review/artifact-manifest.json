@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "actor": "luminar/google-play-reviews-change-monitor",
+  "buildId": "yPKgkpqqIXpS8ggwH",
+  "buildTag": "gplay-release-20260907e",
+  "recordedAt": "2026-09-08T14:16:52.458Z",
+  "environment": "local n8n Community Edition 2.37.10",
+  "files": {
+    "README.md": "3b25b8b3f45c75bccc263da81d1bf78deb0e3cfe2ac806bd452176cf7984b658",
+    "workflow.json": "133b3d0cf50719192208666a99312d7a3d7713d66f6c4c31c851662f14a6e860",
+    "sheet-header.csv": "5d3eb5b9ede412a4fdb853dbcc6da36032063b9b9386aa0a20394733ac2840e6",
+    "workflow.png": "94f2271be8e86ef29b59ea536d1cc0dfa2204b105a8bc237ec6f7f63d1e4398d"
+  },
+  "validation": {
+    "credentialedRuns": 2,
+    "rowsBefore": 0,
+    "rowsAfterFirst": 100,
+    "rowsAfterRepeat": 100,
+    "duplicateKeys": 0,
+    "coverage": [
+      "CAPPED",
+      "CAPPED"
+    ]
+  },
+  "creatorStatus": "Exact locally validated artifact; Creator human review is a separate status."
+}
