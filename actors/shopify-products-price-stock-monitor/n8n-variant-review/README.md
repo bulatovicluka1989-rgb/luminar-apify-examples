@@ -39,3 +39,5 @@ If the paid start returns a network error, inspect recent Apify runs and their i
 ## Validation
 
 Tested on local n8n Community Edition 2.37.10 with pinned Actor build shopify-20260908m. Two successful credentialed executions wrote 8 unique rows and retained 8 on repeat. All 24 columns were read back and compared, with zero duplicate keys. Coverage was COMPLETE and COMPLETE. These are owner QA results, not customer adoption or performance guarantees.
+
+Revision R1 (8 September 2026): the yellow overview explains setup and the four white sections explain this workflow’s data checks and delivery. The exact revised JSON passed two new credentialed executions and visual inspection in the n8n editor.

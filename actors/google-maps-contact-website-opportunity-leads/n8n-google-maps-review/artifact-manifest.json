@@ -3,13 +3,13 @@
   "actor": "luminar/google-maps-contact-website-opportunity-leads",
   "buildId": "xPpblw07EwfdBjCDT",
   "buildTag": "gmaps-contact-leads-20260901a",
-  "recordedAt": "2026-09-07T23:04:49.038Z",
+  "recordedAt": "2026-09-08T04:59:01.115Z",
   "environment": "local n8n Community Edition 2.37.10",
   "files": {
-    "README.md": "c09c7206416cb0005db843ba5fcff8120f092a836ab2c5a6ddb086587c3ba864",
-    "workflow.json": "6e0c9c62438b45245b33bce9652d94de35a18810d89c12590feeaf933859a013",
+    "README.md": "91f035f9e72b0e14d2fc229348fc8bc026ad02fc8374d62e158af1f04a7df1b4",
+    "workflow.json": "87bca6ecdea4a86ee1d29da6a1d35351e19c914061bff94b334701ddc648927b",
     "sheet-header.csv": "01b4d414d9ec078f1f34fd6ba4a382cd13b29e0b61407a7730fd12c1d6442bba",
-    "workflow.png": "c80a950693d8a755b6e6875017730996d2d8ad6d725b8253d3e82135a2184d45"
+    "workflow.png": "ad0bed2125af821af9eb2517492840bb0c269ee17f84453e22cec6bab45bf185"
   },
   "validation": {
     "credentialedRuns": 2,
@@ -22,5 +22,6 @@
       "COMPLETE"
     ]
   },
-  "creatorStatus": "Prepared for submission; import the JSON directly."
+  "creatorStatus": "Corrected R1 artifact; Creator human review is a separate status.",
+  "revision": "R1"
 }

@@ -32,3 +32,5 @@ Only Sheets delivery retries automatically. If a paid start returns a network or
 ## Validation
 
 Tested on local n8n Community Edition 2.37.10 with pinned Actor build release-20260903d. Two successful credentialed executions wrote 25 unique rows and retained 25 on repeat. All 20 columns were read back and compared, with zero duplicate keys. Coverage was CAPPED and CAPPED. These are owner QA results, not customer adoption or performance guarantees.
+
+Revision R1 (8 September 2026): the yellow overview explains setup and the four white sections explain this workflow’s data checks and delivery. The exact revised JSON passed two new credentialed executions and visual inspection in the n8n editor.

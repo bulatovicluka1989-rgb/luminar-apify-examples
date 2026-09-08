@@ -34,3 +34,5 @@ Only Sheets delivery retries automatically. If a paid start returns a network or
 Tested on local n8n Community Edition 2.37.10 with pinned Actor build gmaps-contact-leads-20260901a. Two successful credentialed executions wrote 2 unique rows and retained 2 on repeat. All 19 columns were read back and compared, with zero duplicate keys. Coverage was COMPLETE and COMPLETE. These are owner QA results, not customer adoption or performance guarantees.
 
 The repeat proof used the exposed settings for "Powell's City of Books", Portland, OR, USA, with a maximum of 10; it returned two businesses each time. The public default remains a restaurant search in New York. That broader search was also tested: successive samples added legitimate new businesses, and the register retained 10, then 13, then 14 unique rows. A changing search result set can grow the register without creating duplicate keys.
+
+Revision R1 (8 September 2026): the yellow overview explains setup and the four white sections explain this workflow’s data checks and delivery. The exact revised JSON passed two new credentialed executions and visual inspection in the n8n editor.
