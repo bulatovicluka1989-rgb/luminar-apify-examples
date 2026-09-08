@@ -1,0 +1,925 @@
+{
+  "name": "Review Shopify variant prices and availability with Apify and Google Sheets",
+  "nodes": [
+    {
+      "id": "ea212a6fa7c2261bbda109b5",
+      "name": "Start manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        160
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "b5ef53b068036c0a60c5758f",
+      "name": "Review settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        160
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "61b7bf4f858c46b3be5b43d0",
+              "name": "storeUrl",
+              "value": "https://www.deathwishcoffee.com/products/power-surge-coffee",
+              "type": "string"
+            },
+            {
+              "id": "bf7099bb13c602e05723a664",
+              "name": "maximumResults",
+              "value": 10,
+              "type": "number"
+            },
+            {
+              "id": "b2ec00db54438207e488b09b",
+              "name": "spreadsheetId",
+              "value": "REPLACE_WITH_SPREADSHEET_ID",
+              "type": "string"
+            },
+            {
+              "id": "4f044ea9943d6e14390a06b8",
+              "name": "sheetName",
+              "value": "Variant Review",
+              "type": "string"
+            },
+            {
+              "id": "8629cf24a56006511070d3d8",
+              "name": "maxCostPerRunUsd",
+              "value": 1,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "77c6a4c60d91f6e1bbba489a",
+      "name": "Validate settings",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const DEF={\"folder\":\"shopify-variant-review\",\"kind\":\"shopify\",\"actorId\":\"La4H9euBhFoCWqRLs\",\"buildId\":\"CGipOygC9rzmPTrim\",\"tag\":\"shopify-20260908m\",\"slug\":\"shopify-products-price-stock-monitor\",\"label\":\"Shopify\",\"recordType\":\"product\",\"max\":10,\"memory\":512,\"title\":\"Review Shopify variant prices and availability with Apify and Google Sheets\",\"sheet\":\"Variant Review\",\"settings\":{\"storeUrl\":\"https://www.deathwishcoffee.com/products/power-surge-coffee\",\"maximumResults\":10},\"columns\":[\"upsertKey\",\"targetUrl\",\"productId\",\"productTitle\",\"vendor\",\"productType\",\"productVariantCount\",\"variantId\",\"variantTitle\",\"sku\",\"options\",\"price\",\"compareAtPrice\",\"currency\",\"available\",\"reviewAction\",\"sourceUrl\",\"coverageStatus\",\"maximumResults\",\"productsThisRun\",\"variantsThisRun\",\"estimatedActorChargeUsd\",\"observedAt\",\"runUrl\"],\"intro\":\"Give an e-commerce researcher a variant-level price and availability register for a known public Shopify URL. Compare sizes, formats and SKUs in Google Sheets, with observation dates and direct product links.\",\"semantics\":\"Availability describes public buyability, never a stock quantity. A blank compare-at price stays unknown. Each variant has a separate row, but Apify charges per verified product with variants included. The workflow keeps current observations; it does not calculate price changes, delete missing variants or alter a Shopify store.\",\"custom\":\"Use one public Shopify store, collection or product URL. Choose up to 10 products. Delivery stops above 500 variants instead of silently truncating. A maximum is an upper limit, never a promised result count.\"};\nconst {preflight,classify,bounds,datasetBounds,billing,reconcile,billingReady}=(function createRuntime(DEF) {\n const check=(ok,message)=>{if(!ok)throw new Error(message);};\n const integer=(v,min,max,name)=>{v=Number(v);check(Number.isInteger(v)&&v>=min&&v<=max,'Invalid '+name);return v;};\n const cell=v=>v==null?'':Array.isArray(v)?v.join('; '):String(v);\n function target(value){\n  const m=/^https:\\/\\/([a-z0-9](?:[a-z0-9.-]*[a-z0-9])?)(?::443)?((?:\\/[A-Za-z0-9_-]+)*)\\/?$/i.exec(String(value??'').trim());\n  check(m,'Use a clean HTTPS Shopify store, collection or product URL');const host=m[1].toLowerCase(),parts=m[2].split('/').filter(Boolean);\n  check(host.includes('.')&&!/^[0-9.]+$/.test(host)&&!/(^|\\.)(localhost|local|internal|test|invalid|example)$/.test(host)&&host.split('.').every(p=>/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(p)),'Use a public store hostname');\n  const route=[...parts];if(route[0]&&/^[a-z]{2}(?:-[a-z]{2})?$/i.test(route[0]))route.shift();\n  check(route.length===0||(route.length===2&&['products','collections'].includes(route[0])),'Use a store root, collection or product URL');\n  return {url:'https://'+host+(parts.length?'/'+parts.join('/'):''),origin:'https://'+host};\n }\n function preflight(settings){\n  const spreadsheetId=String(settings.spreadsheetId??'').trim(),sheetName=String(settings.sheetName??'').trim();\n  check(/^[A-Za-z0-9_-]{20,}$/.test(spreadsheetId)&&!spreadsheetId.startsWith('REPLACE'),'Set your Google spreadsheet ID before paid work');\n  check(sheetName.length>0&&sheetName.length<=80,'Invalid sheetName');\n  const store=target(settings.storeUrl),maximumResults=integer(settings.maximumResults,1,DEF.max,'maximumResults'),maxCostPerRunUsd=integer(settings.maxCostPerRunUsd,1,3,'maxCostPerRunUsd');\n  return {spreadsheetId,sheetName,maximumResults,maxCostPerRunUsd,targetUrl:store.url,origin:store.origin,scopeKey:'shopify:'+encodeURIComponent(store.url),actorInput:{startUrls:[store.url],workflow:'snapshot',maxProducts:maximumResults,maxBuyerChargeUsd:maxCostPerRunUsd}};\n }\n function classify(response,now=Date.now()){\n  const run=response?.data??response;check(run?.actId===DEF.actorId&&run.buildId===DEF.buildId,'Unexpected Actor or build; inspect the release before continuing');check(/^[A-Za-z0-9]{17}$/.test(run.id??''),'Missing run identity');\n  if(['READY','RUNNING','TIMING-OUT','ABORTING'].includes(run.status)){check(Number.isFinite(Date.parse(run.startedAt))&&now-Date.parse(run.startedAt)<360000,'Polling time budget exhausted; inspect https://console.apify.com/actors/runs/'+run.id);return {ready:false,run};}\n  check(run.status==='SUCCEEDED','Actor '+run.status+': '+String(run.statusMessage??''));check(run.defaultDatasetId&&run.defaultKeyValueStoreId,'Completed run lacks output storage');return {ready:true,run};\n }\n function bounds(summary,config){\n  check(summary.workflow==='snapshot'&&['COMPLETE','CAPPED'].includes(summary.coverageStatus),'Unsafe source coverage: '+summary.coverageStatus);\n  const count=summary.verifiedProducts;check(Number.isInteger(count)&&count>=0&&count<=config.maximumResults,'Summary product count exceeds the declared bound');\n  const coverage=summary.coverage;check(Array.isArray(coverage)&&coverage.length===1,'Missing unique target coverage');const c=coverage[0];\n  check(c.target===config.targetUrl&&c.status===summary.coverageStatus&&c.verifiedProducts===count&&c.unverifiedProducts===0,'Target coverage is incomplete or inconsistent');\n  check(summary.removedProducts===0&&summary.changeCount===0,'Unexpected comparison records in snapshot');\n  return {coverage:summary.coverageStatus,count,expectedDatasetCount:count};\n }\n function datasetBounds(response,summary,config){\n  const metadata=response?.data??response,b=bounds(summary,config);check(Number.isInteger(metadata?.itemCount)&&metadata.itemCount>=0&&metadata.itemCount<=b.count,'Dataset metadata exceeds the declared bound');\n  return {...b,metadataCountLag:metadata.itemCount<b.count};\n }\n function billingReady(run,summary,count,now=Date.now()){\n  check(summary.snapshotRunId===run.id,'OUTPUT belongs to a different run');\n  const prices=run.pricingInfo?.pricingPerEvent?.actorChargeEvents,charged=run.chargedEventCounts;\n  check(run.pricingInfo?.pricingModel==='PAY_PER_EVENT'&&prices&&charged,'Effective event pricing is unavailable');\n  const expected={catalog_checked:1,product:count};let fee=0,ready=true;\n  for(const [name,n]of Object.entries(charged))check(Number.isInteger(n)&&n>=0&&(name in expected||n===0),'Unexpected charged event');\n  for(const [name,n]of Object.entries(expected)){\n   const p=prices[name]?.eventPriceUsd;check(Number.isFinite(p)&&p>=0,'Missing effective price for '+name);fee+=n*p;\n   const actual=charged[name]??0;check(actual<=n,'Native charge count contradicts delivered products');if(actual<n)ready=false;\n  }\n  check(Number.isFinite(summary.expectedBuyerChargeUsd)&&Math.abs(fee-summary.expectedBuyerChargeUsd)<0.0000001,'Source charge estimate contradicts effective prices');\n  if(!ready)check(Number.isFinite(Date.parse(run.startedAt))&&now-Date.parse(run.startedAt)<360000,'Charge settlement time budget exhausted; inspect https://console.apify.com/actors/runs/'+run.id);\n  return ready;\n }\n function billing(run,summary,count){\n  check(billingReady(run,summary,count),'Native charge counters have not settled');const prices=run.pricingInfo.pricingPerEvent.actorChargeEvents;\n  return Number((prices.catalog_checked.eventPriceUsd+count*prices.product.eventPriceUsd).toFixed(8));\n }\n function reconcile({config,run,summary,metadata,rows}){\n  classify(run);const b=datasetBounds(metadata,summary,config);check(rows.length===b.count,'Dataset retrieval is incomplete');\n  const estimatedActorChargeUsd=billing(run,summary,b.count);check(estimatedActorChargeUsd<=config.maxCostPerRunUsd+0.000001,'Charge exceeds configured cap');\n  const seenProducts=new Set(),seenVariants=new Set(),result=[];\n  for(const r of rows){\n   check(r.recordType==='product'&&/^\\d+$/.test(r.productId??'')&&r.title&&r.targetUrl===config.targetUrl,'Product identity or target mismatch');\n   check(r.stableId===config.origin+':'+r.productId&&!seenProducts.has(r.stableId),'Duplicate or invalid product identity');seenProducts.add(r.stableId);\n   const source=target(r.sourceUrl);check(source.origin===config.origin&&/\\/products\\/[^/]+$/.test(source.url)&&r.url===r.sourceUrl,'Product source URL mismatch');\n   check(/^[A-Z]{3}$/.test(r.currency??'')&&Number.isFinite(Date.parse(r.observedAt)),'Missing product currency or observation time');\n   check(Array.isArray(r.variants)&&r.variants.length>0&&r.variantCount===r.variants.length,'Incomplete product variants');\n   check(Number.isFinite(r.price)&&r.price===Math.min(...r.variants.map(v=>v.price))&&r.available===r.variants.some(v=>v.available===true),'Product and variant totals disagree');\n   for(const v of r.variants){\n    check(/^\\d+$/.test(v.variantId??'')&&typeof v.title==='string'&&v.title.length>0&&typeof v.available==='boolean','Missing variant identity or availability');\n    check(Number.isFinite(v.price)&&v.price>=0&&(v.compareAtPrice===null||(Number.isFinite(v.compareAtPrice)&&v.compareAtPrice>=0))&&v.currency===r.currency,'Invalid variant price or currency');\n    check(Array.isArray(v.options)&&v.options.every(o=>typeof o==='string'),'Invalid variant options');\n    const upsertKey=config.scopeKey+':'+encodeURIComponent(r.stableId)+':'+v.variantId;check(!seenVariants.has(upsertKey),'Duplicate variant identity');seenVariants.add(upsertKey);check(seenVariants.size<=500,'More than 500 variant rows; narrow the source URL or product limit');\n    result.push({upsertKey,targetUrl:config.targetUrl,productId:r.productId,productTitle:r.title,vendor:r.vendor,productType:r.productType,productVariantCount:r.variantCount,variantId:v.variantId,variantTitle:v.title,sku:v.sku,options:v.options,price:v.price,compareAtPrice:v.compareAtPrice,currency:v.currency,available:v.available,reviewAction:v.available?'REVIEW_AVAILABLE_VARIANT':'CHECK_UNAVAILABLE_VARIANT',sourceUrl:r.sourceUrl,coverageStatus:b.coverage,maximumResults:config.maximumResults,productsThisRun:b.count,estimatedActorChargeUsd,observedAt:r.observedAt,runUrl:'https://console.apify.com/actors/runs/'+run.id});\n   }\n  }\n  return result.map(row=>Object.fromEntries(DEF.columns.map(k=>[k,cell(k==='variantsThisRun'?result.length:row[k])])));\n }\n return {preflight,classify,bounds,datasetBounds,billingReady,billing,reconcile};\n})(DEF);\nreturn [{json:preflight($input.first().json)}];"
+      }
+    },
+    {
+      "id": "54b5a405c2462126f91af7f8",
+      "name": "Run Shopify once",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        160
+      ],
+      "parameters": {
+        "url": "https://api.apify.com/v2/acts/La4H9euBhFoCWqRLs/runs",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 70000
+        },
+        "method": "POST",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "build",
+              "value": "shopify-20260908m"
+            },
+            {
+              "name": "timeout",
+              "value": "300"
+            },
+            {
+              "name": "memory",
+              "value": "512"
+            },
+            {
+              "name": "waitForFinish",
+              "value": "60"
+            },
+            {
+              "name": "maxTotalChargeUsd",
+              "value": "={{ $('Validate settings').first().json.maxCostPerRunUsd }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Validate settings').first().json.actorInput) }}"
+      },
+      "retryOnFail": false
+    },
+    {
+      "id": "e01a054a0a076010c5c8035f",
+      "name": "Check run status",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const DEF={\"folder\":\"shopify-variant-review\",\"kind\":\"shopify\",\"actorId\":\"La4H9euBhFoCWqRLs\",\"buildId\":\"CGipOygC9rzmPTrim\",\"tag\":\"shopify-20260908m\",\"slug\":\"shopify-products-price-stock-monitor\",\"label\":\"Shopify\",\"recordType\":\"product\",\"max\":10,\"memory\":512,\"title\":\"Review Shopify variant prices and availability with Apify and Google Sheets\",\"sheet\":\"Variant Review\",\"settings\":{\"storeUrl\":\"https://www.deathwishcoffee.com/products/power-surge-coffee\",\"maximumResults\":10},\"columns\":[\"upsertKey\",\"targetUrl\",\"productId\",\"productTitle\",\"vendor\",\"productType\",\"productVariantCount\",\"variantId\",\"variantTitle\",\"sku\",\"options\",\"price\",\"compareAtPrice\",\"currency\",\"available\",\"reviewAction\",\"sourceUrl\",\"coverageStatus\",\"maximumResults\",\"productsThisRun\",\"variantsThisRun\",\"estimatedActorChargeUsd\",\"observedAt\",\"runUrl\"],\"intro\":\"Give an e-commerce researcher a variant-level price and availability register for a known public Shopify URL. Compare sizes, formats and SKUs in Google Sheets, with observation dates and direct product links.\",\"semantics\":\"Availability describes public buyability, never a stock quantity. A blank compare-at price stays unknown. Each variant has a separate row, but Apify charges per verified product with variants included. The workflow keeps current observations; it does not calculate price changes, delete missing variants or alter a Shopify store.\",\"custom\":\"Use one public Shopify store, collection or product URL. Choose up to 10 products. Delivery stops above 500 variants instead of silently truncating. A maximum is an upper limit, never a promised result count.\"};\nconst {preflight,classify,bounds,datasetBounds,billing,reconcile,billingReady}=(function createRuntime(DEF) {\n const check=(ok,message)=>{if(!ok)throw new Error(message);};\n const integer=(v,min,max,name)=>{v=Number(v);check(Number.isInteger(v)&&v>=min&&v<=max,'Invalid '+name);return v;};\n const cell=v=>v==null?'':Array.isArray(v)?v.join('; '):String(v);\n function target(value){\n  const m=/^https:\\/\\/([a-z0-9](?:[a-z0-9.-]*[a-z0-9])?)(?::443)?((?:\\/[A-Za-z0-9_-]+)*)\\/?$/i.exec(String(value??'').trim());\n  check(m,'Use a clean HTTPS Shopify store, collection or product URL');const host=m[1].toLowerCase(),parts=m[2].split('/').filter(Boolean);\n  check(host.includes('.')&&!/^[0-9.]+$/.test(host)&&!/(^|\\.)(localhost|local|internal|test|invalid|example)$/.test(host)&&host.split('.').every(p=>/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(p)),'Use a public store hostname');\n  const route=[...parts];if(route[0]&&/^[a-z]{2}(?:-[a-z]{2})?$/i.test(route[0]))route.shift();\n  check(route.length===0||(route.length===2&&['products','collections'].includes(route[0])),'Use a store root, collection or product URL');\n  return {url:'https://'+host+(parts.length?'/'+parts.join('/'):''),origin:'https://'+host};\n }\n function preflight(settings){\n  const spreadsheetId=String(settings.spreadsheetId??'').trim(),sheetName=String(settings.sheetName??'').trim();\n  check(/^[A-Za-z0-9_-]{20,}$/.test(spreadsheetId)&&!spreadsheetId.startsWith('REPLACE'),'Set your Google spreadsheet ID before paid work');\n  check(sheetName.length>0&&sheetName.length<=80,'Invalid sheetName');\n  const store=target(settings.storeUrl),maximumResults=integer(settings.maximumResults,1,DEF.max,'maximumResults'),maxCostPerRunUsd=integer(settings.maxCostPerRunUsd,1,3,'maxCostPerRunUsd');\n  return {spreadsheetId,sheetName,maximumResults,maxCostPerRunUsd,targetUrl:store.url,origin:store.origin,scopeKey:'shopify:'+encodeURIComponent(store.url),actorInput:{startUrls:[store.url],workflow:'snapshot',maxProducts:maximumResults,maxBuyerChargeUsd:maxCostPerRunUsd}};\n }\n function classify(response,now=Date.now()){\n  const run=response?.data??response;check(run?.actId===DEF.actorId&&run.buildId===DEF.buildId,'Unexpected Actor or build; inspect the release before continuing');check(/^[A-Za-z0-9]{17}$/.test(run.id??''),'Missing run identity');\n  if(['READY','RUNNING','TIMING-OUT','ABORTING'].includes(run.status)){check(Number.isFinite(Date.parse(run.startedAt))&&now-Date.parse(run.startedAt)<360000,'Polling time budget exhausted; inspect https://console.apify.com/actors/runs/'+run.id);return {ready:false,run};}\n  check(run.status==='SUCCEEDED','Actor '+run.status+': '+String(run.statusMessage??''));check(run.defaultDatasetId&&run.defaultKeyValueStoreId,'Completed run lacks output storage');return {ready:true,run};\n }\n function bounds(summary,config){\n  check(summary.workflow==='snapshot'&&['COMPLETE','CAPPED'].includes(summary.coverageStatus),'Unsafe source coverage: '+summary.coverageStatus);\n  const count=summary.verifiedProducts;check(Number.isInteger(count)&&count>=0&&count<=config.maximumResults,'Summary product count exceeds the declared bound');\n  const coverage=summary.coverage;check(Array.isArray(coverage)&&coverage.length===1,'Missing unique target coverage');const c=coverage[0];\n  check(c.target===config.targetUrl&&c.status===summary.coverageStatus&&c.verifiedProducts===count&&c.unverifiedProducts===0,'Target coverage is incomplete or inconsistent');\n  check(summary.removedProducts===0&&summary.changeCount===0,'Unexpected comparison records in snapshot');\n  return {coverage:summary.coverageStatus,count,expectedDatasetCount:count};\n }\n function datasetBounds(response,summary,config){\n  const metadata=response?.data??response,b=bounds(summary,config);check(Number.isInteger(metadata?.itemCount)&&metadata.itemCount>=0&&metadata.itemCount<=b.count,'Dataset metadata exceeds the declared bound');\n  return {...b,metadataCountLag:metadata.itemCount<b.count};\n }\n function billingReady(run,summary,count,now=Date.now()){\n  check(summary.snapshotRunId===run.id,'OUTPUT belongs to a different run');\n  const prices=run.pricingInfo?.pricingPerEvent?.actorChargeEvents,charged=run.chargedEventCounts;\n  check(run.pricingInfo?.pricingModel==='PAY_PER_EVENT'&&prices&&charged,'Effective event pricing is unavailable');\n  const expected={catalog_checked:1,product:count};let fee=0,ready=true;\n  for(const [name,n]of Object.entries(charged))check(Number.isInteger(n)&&n>=0&&(name in expected||n===0),'Unexpected charged event');\n  for(const [name,n]of Object.entries(expected)){\n   const p=prices[name]?.eventPriceUsd;check(Number.isFinite(p)&&p>=0,'Missing effective price for '+name);fee+=n*p;\n   const actual=charged[name]??0;check(actual<=n,'Native charge count contradicts delivered products');if(actual<n)ready=false;\n  }\n  check(Number.isFinite(summary.expectedBuyerChargeUsd)&&Math.abs(fee-summary.expectedBuyerChargeUsd)<0.0000001,'Source charge estimate contradicts effective prices');\n  if(!ready)check(Number.isFinite(Date.parse(run.startedAt))&&now-Date.parse(run.startedAt)<360000,'Charge settlement time budget exhausted; inspect https://console.apify.com/actors/runs/'+run.id);\n  return ready;\n }\n function billing(run,summary,count){\n  check(billingReady(run,summary,count),'Native charge counters have not settled');const prices=run.pricingInfo.pricingPerEvent.actorChargeEvents;\n  return Number((prices.catalog_checked.eventPriceUsd+count*prices.product.eventPriceUsd).toFixed(8));\n }\n function reconcile({config,run,summary,metadata,rows}){\n  classify(run);const b=datasetBounds(metadata,summary,config);check(rows.length===b.count,'Dataset retrieval is incomplete');\n  const estimatedActorChargeUsd=billing(run,summary,b.count);check(estimatedActorChargeUsd<=config.maxCostPerRunUsd+0.000001,'Charge exceeds configured cap');\n  const seenProducts=new Set(),seenVariants=new Set(),result=[];\n  for(const r of rows){\n   check(r.recordType==='product'&&/^\\d+$/.test(r.productId??'')&&r.title&&r.targetUrl===config.targetUrl,'Product identity or target mismatch');\n   check(r.stableId===config.origin+':'+r.productId&&!seenProducts.has(r.stableId),'Duplicate or invalid product identity');seenProducts.add(r.stableId);\n   const source=target(r.sourceUrl);check(source.origin===config.origin&&/\\/products\\/[^/]+$/.test(source.url)&&r.url===r.sourceUrl,'Product source URL mismatch');\n   check(/^[A-Z]{3}$/.test(r.currency??'')&&Number.isFinite(Date.parse(r.observedAt)),'Missing product currency or observation time');\n   check(Array.isArray(r.variants)&&r.variants.length>0&&r.variantCount===r.variants.length,'Incomplete product variants');\n   check(Number.isFinite(r.price)&&r.price===Math.min(...r.variants.map(v=>v.price))&&r.available===r.variants.some(v=>v.available===true),'Product and variant totals disagree');\n   for(const v of r.variants){\n    check(/^\\d+$/.test(v.variantId??'')&&typeof v.title==='string'&&v.title.length>0&&typeof v.available==='boolean','Missing variant identity or availability');\n    check(Number.isFinite(v.price)&&v.price>=0&&(v.compareAtPrice===null||(Number.isFinite(v.compareAtPrice)&&v.compareAtPrice>=0))&&v.currency===r.currency,'Invalid variant price or currency');\n    check(Array.isArray(v.options)&&v.options.every(o=>typeof o==='string'),'Invalid variant options');\n    const upsertKey=config.scopeKey+':'+encodeURIComponent(r.stableId)+':'+v.variantId;check(!seenVariants.has(upsertKey),'Duplicate variant identity');seenVariants.add(upsertKey);check(seenVariants.size<=500,'More than 500 variant rows; narrow the source URL or product limit');\n    result.push({upsertKey,targetUrl:config.targetUrl,productId:r.productId,productTitle:r.title,vendor:r.vendor,productType:r.productType,productVariantCount:r.variantCount,variantId:v.variantId,variantTitle:v.title,sku:v.sku,options:v.options,price:v.price,compareAtPrice:v.compareAtPrice,currency:v.currency,available:v.available,reviewAction:v.available?'REVIEW_AVAILABLE_VARIANT':'CHECK_UNAVAILABLE_VARIANT',sourceUrl:r.sourceUrl,coverageStatus:b.coverage,maximumResults:config.maximumResults,productsThisRun:b.count,estimatedActorChargeUsd,observedAt:r.observedAt,runUrl:'https://console.apify.com/actors/runs/'+run.id});\n   }\n  }\n  return result.map(row=>Object.fromEntries(DEF.columns.map(k=>[k,cell(k==='variantsThisRun'?result.length:row[k])])));\n }\n return {preflight,classify,bounds,datasetBounds,billingReady,billing,reconcile};\n})(DEF);\nreturn [{json:classify($input.first().json)}];"
+      }
+    },
+    {
+      "id": "9ef82f25315ce8428ecf1427",
+      "name": "Run finished?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1360,
+        160
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2c18af0c3e715de1bf58bc38",
+              "leftValue": "={{ $json.ready }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "c5a232622f0774e065efcc99",
+      "name": "Wait five seconds",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1360,
+        432
+      ],
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 5,
+        "unit": "seconds"
+      },
+      "webhookId": "5460eb4c83c9fbd8fe29edb1"
+    },
+    {
+      "id": "e55b71f4a420dd981a318249",
+      "name": "Read existing run",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        432
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/actor-runs/' + $json.run.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 70000
+        }
+      },
+      "retryOnFail": false
+    },
+    {
+      "id": "f30b348165e405b6fdcee504",
+      "name": "Read authoritative output",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1776,
+        160
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/key-value-stores/' + $('Check run status').item.json.run.defaultKeyValueStoreId + '/records/OUTPUT' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 70000
+        }
+      },
+      "retryOnFail": false
+    },
+    {
+      "id": "299c29b20aefb830045b3ce9",
+      "name": "Check output bounds",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2016,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const DEF={\"folder\":\"shopify-variant-review\",\"kind\":\"shopify\",\"actorId\":\"La4H9euBhFoCWqRLs\",\"buildId\":\"CGipOygC9rzmPTrim\",\"tag\":\"shopify-20260908m\",\"slug\":\"shopify-products-price-stock-monitor\",\"label\":\"Shopify\",\"recordType\":\"product\",\"max\":10,\"memory\":512,\"title\":\"Review Shopify variant prices and availability with Apify and Google Sheets\",\"sheet\":\"Variant Review\",\"settings\":{\"storeUrl\":\"https://www.deathwishcoffee.com/products/power-surge-coffee\",\"maximumResults\":10},\"columns\":[\"upsertKey\",\"targetUrl\",\"productId\",\"productTitle\",\"vendor\",\"productType\",\"productVariantCount\",\"variantId\",\"variantTitle\",\"sku\",\"options\",\"price\",\"compareAtPrice\",\"currency\",\"available\",\"reviewAction\",\"sourceUrl\",\"coverageStatus\",\"maximumResults\",\"productsThisRun\",\"variantsThisRun\",\"estimatedActorChargeUsd\",\"observedAt\",\"runUrl\"],\"intro\":\"Give an e-commerce researcher a variant-level price and availability register for a known public Shopify URL. Compare sizes, formats and SKUs in Google Sheets, with observation dates and direct product links.\",\"semantics\":\"Availability describes public buyability, never a stock quantity. A blank compare-at price stays unknown. Each variant has a separate row, but Apify charges per verified product with variants included. The workflow keeps current observations; it does not calculate price changes, delete missing variants or alter a Shopify store.\",\"custom\":\"Use one public Shopify store, collection or product URL. Choose up to 10 products. Delivery stops above 500 variants instead of silently truncating. A maximum is an upper limit, never a promised result count.\"};\nconst {preflight,classify,bounds,datasetBounds,billing,reconcile,billingReady}=(function createRuntime(DEF) {\n const check=(ok,message)=>{if(!ok)throw new Error(message);};\n const integer=(v,min,max,name)=>{v=Number(v);check(Number.isInteger(v)&&v>=min&&v<=max,'Invalid '+name);return v;};\n const cell=v=>v==null?'':Array.isArray(v)?v.join('; '):String(v);\n function target(value){\n  const m=/^https:\\/\\/([a-z0-9](?:[a-z0-9.-]*[a-z0-9])?)(?::443)?((?:\\/[A-Za-z0-9_-]+)*)\\/?$/i.exec(String(value??'').trim());\n  check(m,'Use a clean HTTPS Shopify store, collection or product URL');const host=m[1].toLowerCase(),parts=m[2].split('/').filter(Boolean);\n  check(host.includes('.')&&!/^[0-9.]+$/.test(host)&&!/(^|\\.)(localhost|local|internal|test|invalid|example)$/.test(host)&&host.split('.').every(p=>/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(p)),'Use a public store hostname');\n  const route=[...parts];if(route[0]&&/^[a-z]{2}(?:-[a-z]{2})?$/i.test(route[0]))route.shift();\n  check(route.length===0||(route.length===2&&['products','collections'].includes(route[0])),'Use a store root, collection or product URL');\n  return {url:'https://'+host+(parts.length?'/'+parts.join('/'):''),origin:'https://'+host};\n }\n function preflight(settings){\n  const spreadsheetId=String(settings.spreadsheetId??'').trim(),sheetName=String(settings.sheetName??'').trim();\n  check(/^[A-Za-z0-9_-]{20,}$/.test(spreadsheetId)&&!spreadsheetId.startsWith('REPLACE'),'Set your Google spreadsheet ID before paid work');\n  check(sheetName.length>0&&sheetName.length<=80,'Invalid sheetName');\n  const store=target(settings.storeUrl),maximumResults=integer(settings.maximumResults,1,DEF.max,'maximumResults'),maxCostPerRunUsd=integer(settings.maxCostPerRunUsd,1,3,'maxCostPerRunUsd');\n  return {spreadsheetId,sheetName,maximumResults,maxCostPerRunUsd,targetUrl:store.url,origin:store.origin,scopeKey:'shopify:'+encodeURIComponent(store.url),actorInput:{startUrls:[store.url],workflow:'snapshot',maxProducts:maximumResults,maxBuyerChargeUsd:maxCostPerRunUsd}};\n }\n function classify(response,now=Date.now()){\n  const run=response?.data??response;check(run?.actId===DEF.actorId&&run.buildId===DEF.buildId,'Unexpected Actor or build; inspect the release before continuing');check(/^[A-Za-z0-9]{17}$/.test(run.id??''),'Missing run identity');\n  if(['READY','RUNNING','TIMING-OUT','ABORTING'].includes(run.status)){check(Number.isFinite(Date.parse(run.startedAt))&&now-Date.parse(run.startedAt)<360000,'Polling time budget exhausted; inspect https://console.apify.com/actors/runs/'+run.id);return {ready:false,run};}\n  check(run.status==='SUCCEEDED','Actor '+run.status+': '+String(run.statusMessage??''));check(run.defaultDatasetId&&run.defaultKeyValueStoreId,'Completed run lacks output storage');return {ready:true,run};\n }\n function bounds(summary,config){\n  check(summary.workflow==='snapshot'&&['COMPLETE','CAPPED'].includes(summary.coverageStatus),'Unsafe source coverage: '+summary.coverageStatus);\n  const count=summary.verifiedProducts;check(Number.isInteger(count)&&count>=0&&count<=config.maximumResults,'Summary product count exceeds the declared bound');\n  const coverage=summary.coverage;check(Array.isArray(coverage)&&coverage.length===1,'Missing unique target coverage');const c=coverage[0];\n  check(c.target===config.targetUrl&&c.status===summary.coverageStatus&&c.verifiedProducts===count&&c.unverifiedProducts===0,'Target coverage is incomplete or inconsistent');\n  check(summary.removedProducts===0&&summary.changeCount===0,'Unexpected comparison records in snapshot');\n  return {coverage:summary.coverageStatus,count,expectedDatasetCount:count};\n }\n function datasetBounds(response,summary,config){\n  const metadata=response?.data??response,b=bounds(summary,config);check(Number.isInteger(metadata?.itemCount)&&metadata.itemCount>=0&&metadata.itemCount<=b.count,'Dataset metadata exceeds the declared bound');\n  return {...b,metadataCountLag:metadata.itemCount<b.count};\n }\n function billingReady(run,summary,count,now=Date.now()){\n  check(summary.snapshotRunId===run.id,'OUTPUT belongs to a different run');\n  const prices=run.pricingInfo?.pricingPerEvent?.actorChargeEvents,charged=run.chargedEventCounts;\n  check(run.pricingInfo?.pricingModel==='PAY_PER_EVENT'&&prices&&charged,'Effective event pricing is unavailable');\n  const expected={catalog_checked:1,product:count};let fee=0,ready=true;\n  for(const [name,n]of Object.entries(charged))check(Number.isInteger(n)&&n>=0&&(name in expected||n===0),'Unexpected charged event');\n  for(const [name,n]of Object.entries(expected)){\n   const p=prices[name]?.eventPriceUsd;check(Number.isFinite(p)&&p>=0,'Missing effective price for '+name);fee+=n*p;\n   const actual=charged[name]??0;check(actual<=n,'Native charge count contradicts delivered products');if(actual<n)ready=false;\n  }\n  check(Number.isFinite(summary.expectedBuyerChargeUsd)&&Math.abs(fee-summary.expectedBuyerChargeUsd)<0.0000001,'Source charge estimate contradicts effective prices');\n  if(!ready)check(Number.isFinite(Date.parse(run.startedAt))&&now-Date.parse(run.startedAt)<360000,'Charge settlement time budget exhausted; inspect https://console.apify.com/actors/runs/'+run.id);\n  return ready;\n }\n function billing(run,summary,count){\n  check(billingReady(run,summary,count),'Native charge counters have not settled');const prices=run.pricingInfo.pricingPerEvent.actorChargeEvents;\n  return Number((prices.catalog_checked.eventPriceUsd+count*prices.product.eventPriceUsd).toFixed(8));\n }\n function reconcile({config,run,summary,metadata,rows}){\n  classify(run);const b=datasetBounds(metadata,summary,config);check(rows.length===b.count,'Dataset retrieval is incomplete');\n  const estimatedActorChargeUsd=billing(run,summary,b.count);check(estimatedActorChargeUsd<=config.maxCostPerRunUsd+0.000001,'Charge exceeds configured cap');\n  const seenProducts=new Set(),seenVariants=new Set(),result=[];\n  for(const r of rows){\n   check(r.recordType==='product'&&/^\\d+$/.test(r.productId??'')&&r.title&&r.targetUrl===config.targetUrl,'Product identity or target mismatch');\n   check(r.stableId===config.origin+':'+r.productId&&!seenProducts.has(r.stableId),'Duplicate or invalid product identity');seenProducts.add(r.stableId);\n   const source=target(r.sourceUrl);check(source.origin===config.origin&&/\\/products\\/[^/]+$/.test(source.url)&&r.url===r.sourceUrl,'Product source URL mismatch');\n   check(/^[A-Z]{3}$/.test(r.currency??'')&&Number.isFinite(Date.parse(r.observedAt)),'Missing product currency or observation time');\n   check(Array.isArray(r.variants)&&r.variants.length>0&&r.variantCount===r.variants.length,'Incomplete product variants');\n   check(Number.isFinite(r.price)&&r.price===Math.min(...r.variants.map(v=>v.price))&&r.available===r.variants.some(v=>v.available===true),'Product and variant totals disagree');\n   for(const v of r.variants){\n    check(/^\\d+$/.test(v.variantId??'')&&typeof v.title==='string'&&v.title.length>0&&typeof v.available==='boolean','Missing variant identity or availability');\n    check(Number.isFinite(v.price)&&v.price>=0&&(v.compareAtPrice===null||(Number.isFinite(v.compareAtPrice)&&v.compareAtPrice>=0))&&v.currency===r.currency,'Invalid variant price or currency');\n    check(Array.isArray(v.options)&&v.options.every(o=>typeof o==='string'),'Invalid variant options');\n    const upsertKey=config.scopeKey+':'+encodeURIComponent(r.stableId)+':'+v.variantId;check(!seenVariants.has(upsertKey),'Duplicate variant identity');seenVariants.add(upsertKey);check(seenVariants.size<=500,'More than 500 variant rows; narrow the source URL or product limit');\n    result.push({upsertKey,targetUrl:config.targetUrl,productId:r.productId,productTitle:r.title,vendor:r.vendor,productType:r.productType,productVariantCount:r.variantCount,variantId:v.variantId,variantTitle:v.title,sku:v.sku,options:v.options,price:v.price,compareAtPrice:v.compareAtPrice,currency:v.currency,available:v.available,reviewAction:v.available?'REVIEW_AVAILABLE_VARIANT':'CHECK_UNAVAILABLE_VARIANT',sourceUrl:r.sourceUrl,coverageStatus:b.coverage,maximumResults:config.maximumResults,productsThisRun:b.count,estimatedActorChargeUsd,observedAt:r.observedAt,runUrl:'https://console.apify.com/actors/runs/'+run.id});\n   }\n  }\n  return result.map(row=>Object.fromEntries(DEF.columns.map(k=>[k,cell(k==='variantsThisRun'?result.length:row[k])])));\n }\n return {preflight,classify,bounds,datasetBounds,billingReady,billing,reconcile};\n})(DEF);\nconst summary=$input.first().json;const b=bounds(summary,$('Validate settings').first().json);const run=$('Check run status').item.json.run;return [{json:{summary,run,settled:billingReady(run,summary,b.count)}}];"
+      }
+    },
+    {
+      "id": "7cd87188be7bebf059683b7e",
+      "name": "Read dataset metadata",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1776,
+        432
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/datasets/' + $json.run.defaultDatasetId }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 70000
+        }
+      },
+      "retryOnFail": false
+    },
+    {
+      "id": "dadfca97b2acc876b2bb0922",
+      "name": "Check dataset count",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2016,
+        432
+      ],
+      "parameters": {
+        "jsCode": "const DEF={\"folder\":\"shopify-variant-review\",\"kind\":\"shopify\",\"actorId\":\"La4H9euBhFoCWqRLs\",\"buildId\":\"CGipOygC9rzmPTrim\",\"tag\":\"shopify-20260908m\",\"slug\":\"shopify-products-price-stock-monitor\",\"label\":\"Shopify\",\"recordType\":\"product\",\"max\":10,\"memory\":512,\"title\":\"Review Shopify variant prices and availability with Apify and Google Sheets\",\"sheet\":\"Variant Review\",\"settings\":{\"storeUrl\":\"https://www.deathwishcoffee.com/products/power-surge-coffee\",\"maximumResults\":10},\"columns\":[\"upsertKey\",\"targetUrl\",\"productId\",\"productTitle\",\"vendor\",\"productType\",\"productVariantCount\",\"variantId\",\"variantTitle\",\"sku\",\"options\",\"price\",\"compareAtPrice\",\"currency\",\"available\",\"reviewAction\",\"sourceUrl\",\"coverageStatus\",\"maximumResults\",\"productsThisRun\",\"variantsThisRun\",\"estimatedActorChargeUsd\",\"observedAt\",\"runUrl\"],\"intro\":\"Give an e-commerce researcher a variant-level price and availability register for a known public Shopify URL. Compare sizes, formats and SKUs in Google Sheets, with observation dates and direct product links.\",\"semantics\":\"Availability describes public buyability, never a stock quantity. A blank compare-at price stays unknown. Each variant has a separate row, but Apify charges per verified product with variants included. The workflow keeps current observations; it does not calculate price changes, delete missing variants or alter a Shopify store.\",\"custom\":\"Use one public Shopify store, collection or product URL. Choose up to 10 products. Delivery stops above 500 variants instead of silently truncating. A maximum is an upper limit, never a promised result count.\"};\nconst {preflight,classify,bounds,datasetBounds,billing,reconcile,billingReady}=(function createRuntime(DEF) {\n const check=(ok,message)=>{if(!ok)throw new Error(message);};\n const integer=(v,min,max,name)=>{v=Number(v);check(Number.isInteger(v)&&v>=min&&v<=max,'Invalid '+name);return v;};\n const cell=v=>v==null?'':Array.isArray(v)?v.join('; '):String(v);\n function target(value){\n  const m=/^https:\\/\\/([a-z0-9](?:[a-z0-9.-]*[a-z0-9])?)(?::443)?((?:\\/[A-Za-z0-9_-]+)*)\\/?$/i.exec(String(value??'').trim());\n  check(m,'Use a clean HTTPS Shopify store, collection or product URL');const host=m[1].toLowerCase(),parts=m[2].split('/').filter(Boolean);\n  check(host.includes('.')&&!/^[0-9.]+$/.test(host)&&!/(^|\\.)(localhost|local|internal|test|invalid|example)$/.test(host)&&host.split('.').every(p=>/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(p)),'Use a public store hostname');\n  const route=[...parts];if(route[0]&&/^[a-z]{2}(?:-[a-z]{2})?$/i.test(route[0]))route.shift();\n  check(route.length===0||(route.length===2&&['products','collections'].includes(route[0])),'Use a store root, collection or product URL');\n  return {url:'https://'+host+(parts.length?'/'+parts.join('/'):''),origin:'https://'+host};\n }\n function preflight(settings){\n  const spreadsheetId=String(settings.spreadsheetId??'').trim(),sheetName=String(settings.sheetName??'').trim();\n  check(/^[A-Za-z0-9_-]{20,}$/.test(spreadsheetId)&&!spreadsheetId.startsWith('REPLACE'),'Set your Google spreadsheet ID before paid work');\n  check(sheetName.length>0&&sheetName.length<=80,'Invalid sheetName');\n  const store=target(settings.storeUrl),maximumResults=integer(settings.maximumResults,1,DEF.max,'maximumResults'),maxCostPerRunUsd=integer(settings.maxCostPerRunUsd,1,3,'maxCostPerRunUsd');\n  return {spreadsheetId,sheetName,maximumResults,maxCostPerRunUsd,targetUrl:store.url,origin:store.origin,scopeKey:'shopify:'+encodeURIComponent(store.url),actorInput:{startUrls:[store.url],workflow:'snapshot',maxProducts:maximumResults,maxBuyerChargeUsd:maxCostPerRunUsd}};\n }\n function classify(response,now=Date.now()){\n  const run=response?.data??response;check(run?.actId===DEF.actorId&&run.buildId===DEF.buildId,'Unexpected Actor or build; inspect the release before continuing');check(/^[A-Za-z0-9]{17}$/.test(run.id??''),'Missing run identity');\n  if(['READY','RUNNING','TIMING-OUT','ABORTING'].includes(run.status)){check(Number.isFinite(Date.parse(run.startedAt))&&now-Date.parse(run.startedAt)<360000,'Polling time budget exhausted; inspect https://console.apify.com/actors/runs/'+run.id);return {ready:false,run};}\n  check(run.status==='SUCCEEDED','Actor '+run.status+': '+String(run.statusMessage??''));check(run.defaultDatasetId&&run.defaultKeyValueStoreId,'Completed run lacks output storage');return {ready:true,run};\n }\n function bounds(summary,config){\n  check(summary.workflow==='snapshot'&&['COMPLETE','CAPPED'].includes(summary.coverageStatus),'Unsafe source coverage: '+summary.coverageStatus);\n  const count=summary.verifiedProducts;check(Number.isInteger(count)&&count>=0&&count<=config.maximumResults,'Summary product count exceeds the declared bound');\n  const coverage=summary.coverage;check(Array.isArray(coverage)&&coverage.length===1,'Missing unique target coverage');const c=coverage[0];\n  check(c.target===config.targetUrl&&c.status===summary.coverageStatus&&c.verifiedProducts===count&&c.unverifiedProducts===0,'Target coverage is incomplete or inconsistent');\n  check(summary.removedProducts===0&&summary.changeCount===0,'Unexpected comparison records in snapshot');\n  return {coverage:summary.coverageStatus,count,expectedDatasetCount:count};\n }\n function datasetBounds(response,summary,config){\n  const metadata=response?.data??response,b=bounds(summary,config);check(Number.isInteger(metadata?.itemCount)&&metadata.itemCount>=0&&metadata.itemCount<=b.count,'Dataset metadata exceeds the declared bound');\n  return {...b,metadataCountLag:metadata.itemCount<b.count};\n }\n function billingReady(run,summary,count,now=Date.now()){\n  check(summary.snapshotRunId===run.id,'OUTPUT belongs to a different run');\n  const prices=run.pricingInfo?.pricingPerEvent?.actorChargeEvents,charged=run.chargedEventCounts;\n  check(run.pricingInfo?.pricingModel==='PAY_PER_EVENT'&&prices&&charged,'Effective event pricing is unavailable');\n  const expected={catalog_checked:1,product:count};let fee=0,ready=true;\n  for(const [name,n]of Object.entries(charged))check(Number.isInteger(n)&&n>=0&&(name in expected||n===0),'Unexpected charged event');\n  for(const [name,n]of Object.entries(expected)){\n   const p=prices[name]?.eventPriceUsd;check(Number.isFinite(p)&&p>=0,'Missing effective price for '+name);fee+=n*p;\n   const actual=charged[name]??0;check(actual<=n,'Native charge count contradicts delivered products');if(actual<n)ready=false;\n  }\n  check(Number.isFinite(summary.expectedBuyerChargeUsd)&&Math.abs(fee-summary.expectedBuyerChargeUsd)<0.0000001,'Source charge estimate contradicts effective prices');\n  if(!ready)check(Number.isFinite(Date.parse(run.startedAt))&&now-Date.parse(run.startedAt)<360000,'Charge settlement time budget exhausted; inspect https://console.apify.com/actors/runs/'+run.id);\n  return ready;\n }\n function billing(run,summary,count){\n  check(billingReady(run,summary,count),'Native charge counters have not settled');const prices=run.pricingInfo.pricingPerEvent.actorChargeEvents;\n  return Number((prices.catalog_checked.eventPriceUsd+count*prices.product.eventPriceUsd).toFixed(8));\n }\n function reconcile({config,run,summary,metadata,rows}){\n  classify(run);const b=datasetBounds(metadata,summary,config);check(rows.length===b.count,'Dataset retrieval is incomplete');\n  const estimatedActorChargeUsd=billing(run,summary,b.count);check(estimatedActorChargeUsd<=config.maxCostPerRunUsd+0.000001,'Charge exceeds configured cap');\n  const seenProducts=new Set(),seenVariants=new Set(),result=[];\n  for(const r of rows){\n   check(r.recordType==='product'&&/^\\d+$/.test(r.productId??'')&&r.title&&r.targetUrl===config.targetUrl,'Product identity or target mismatch');\n   check(r.stableId===config.origin+':'+r.productId&&!seenProducts.has(r.stableId),'Duplicate or invalid product identity');seenProducts.add(r.stableId);\n   const source=target(r.sourceUrl);check(source.origin===config.origin&&/\\/products\\/[^/]+$/.test(source.url)&&r.url===r.sourceUrl,'Product source URL mismatch');\n   check(/^[A-Z]{3}$/.test(r.currency??'')&&Number.isFinite(Date.parse(r.observedAt)),'Missing product currency or observation time');\n   check(Array.isArray(r.variants)&&r.variants.length>0&&r.variantCount===r.variants.length,'Incomplete product variants');\n   check(Number.isFinite(r.price)&&r.price===Math.min(...r.variants.map(v=>v.price))&&r.available===r.variants.some(v=>v.available===true),'Product and variant totals disagree');\n   for(const v of r.variants){\n    check(/^\\d+$/.test(v.variantId??'')&&typeof v.title==='string'&&v.title.length>0&&typeof v.available==='boolean','Missing variant identity or availability');\n    check(Number.isFinite(v.price)&&v.price>=0&&(v.compareAtPrice===null||(Number.isFinite(v.compareAtPrice)&&v.compareAtPrice>=0))&&v.currency===r.currency,'Invalid variant price or currency');\n    check(Array.isArray(v.options)&&v.options.every(o=>typeof o==='string'),'Invalid variant options');\n    const upsertKey=config.scopeKey+':'+encodeURIComponent(r.stableId)+':'+v.variantId;check(!seenVariants.has(upsertKey),'Duplicate variant identity');seenVariants.add(upsertKey);check(seenVariants.size<=500,'More than 500 variant rows; narrow the source URL or product limit');\n    result.push({upsertKey,targetUrl:config.targetUrl,productId:r.productId,productTitle:r.title,vendor:r.vendor,productType:r.productType,productVariantCount:r.variantCount,variantId:v.variantId,variantTitle:v.title,sku:v.sku,options:v.options,price:v.price,compareAtPrice:v.compareAtPrice,currency:v.currency,available:v.available,reviewAction:v.available?'REVIEW_AVAILABLE_VARIANT':'CHECK_UNAVAILABLE_VARIANT',sourceUrl:r.sourceUrl,coverageStatus:b.coverage,maximumResults:config.maximumResults,productsThisRun:b.count,estimatedActorChargeUsd,observedAt:r.observedAt,runUrl:'https://console.apify.com/actors/runs/'+run.id});\n   }\n  }\n  return result.map(row=>Object.fromEntries(DEF.columns.map(k=>[k,cell(k==='variantsThisRun'?result.length:row[k])])));\n }\n return {preflight,classify,bounds,datasetBounds,billingReady,billing,reconcile};\n})(DEF);\nconst metadata=$input.first().json; datasetBounds(metadata,$('Check output bounds').item.json.summary,$('Validate settings').first().json);return [{json:{metadata,run:$('Check output bounds').item.json.run}}];"
+      }
+    },
+    {
+      "id": "ccb79e9d01532879d48abd14",
+      "name": "Read complete bounded dataset",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2256,
+        432
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/datasets/' + $json.run.defaultDatasetId + '/items' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 70000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "102"
+            },
+            {
+              "name": "clean",
+              "value": "true"
+            },
+            {
+              "name": "format",
+              "value": "json"
+            }
+          ]
+        }
+      },
+      "retryOnFail": false
+    },
+    {
+      "id": "50052022edfb596a65428c67",
+      "name": "Build verified Sheet rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2656,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const DEF={\"folder\":\"shopify-variant-review\",\"kind\":\"shopify\",\"actorId\":\"La4H9euBhFoCWqRLs\",\"buildId\":\"CGipOygC9rzmPTrim\",\"tag\":\"shopify-20260908m\",\"slug\":\"shopify-products-price-stock-monitor\",\"label\":\"Shopify\",\"recordType\":\"product\",\"max\":10,\"memory\":512,\"title\":\"Review Shopify variant prices and availability with Apify and Google Sheets\",\"sheet\":\"Variant Review\",\"settings\":{\"storeUrl\":\"https://www.deathwishcoffee.com/products/power-surge-coffee\",\"maximumResults\":10},\"columns\":[\"upsertKey\",\"targetUrl\",\"productId\",\"productTitle\",\"vendor\",\"productType\",\"productVariantCount\",\"variantId\",\"variantTitle\",\"sku\",\"options\",\"price\",\"compareAtPrice\",\"currency\",\"available\",\"reviewAction\",\"sourceUrl\",\"coverageStatus\",\"maximumResults\",\"productsThisRun\",\"variantsThisRun\",\"estimatedActorChargeUsd\",\"observedAt\",\"runUrl\"],\"intro\":\"Give an e-commerce researcher a variant-level price and availability register for a known public Shopify URL. Compare sizes, formats and SKUs in Google Sheets, with observation dates and direct product links.\",\"semantics\":\"Availability describes public buyability, never a stock quantity. A blank compare-at price stays unknown. Each variant has a separate row, but Apify charges per verified product with variants included. The workflow keeps current observations; it does not calculate price changes, delete missing variants or alter a Shopify store.\",\"custom\":\"Use one public Shopify store, collection or product URL. Choose up to 10 products. Delivery stops above 500 variants instead of silently truncating. A maximum is an upper limit, never a promised result count.\"};\nconst {preflight,classify,bounds,datasetBounds,billing,reconcile,billingReady}=(function createRuntime(DEF) {\n const check=(ok,message)=>{if(!ok)throw new Error(message);};\n const integer=(v,min,max,name)=>{v=Number(v);check(Number.isInteger(v)&&v>=min&&v<=max,'Invalid '+name);return v;};\n const cell=v=>v==null?'':Array.isArray(v)?v.join('; '):String(v);\n function target(value){\n  const m=/^https:\\/\\/([a-z0-9](?:[a-z0-9.-]*[a-z0-9])?)(?::443)?((?:\\/[A-Za-z0-9_-]+)*)\\/?$/i.exec(String(value??'').trim());\n  check(m,'Use a clean HTTPS Shopify store, collection or product URL');const host=m[1].toLowerCase(),parts=m[2].split('/').filter(Boolean);\n  check(host.includes('.')&&!/^[0-9.]+$/.test(host)&&!/(^|\\.)(localhost|local|internal|test|invalid|example)$/.test(host)&&host.split('.').every(p=>/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(p)),'Use a public store hostname');\n  const route=[...parts];if(route[0]&&/^[a-z]{2}(?:-[a-z]{2})?$/i.test(route[0]))route.shift();\n  check(route.length===0||(route.length===2&&['products','collections'].includes(route[0])),'Use a store root, collection or product URL');\n  return {url:'https://'+host+(parts.length?'/'+parts.join('/'):''),origin:'https://'+host};\n }\n function preflight(settings){\n  const spreadsheetId=String(settings.spreadsheetId??'').trim(),sheetName=String(settings.sheetName??'').trim();\n  check(/^[A-Za-z0-9_-]{20,}$/.test(spreadsheetId)&&!spreadsheetId.startsWith('REPLACE'),'Set your Google spreadsheet ID before paid work');\n  check(sheetName.length>0&&sheetName.length<=80,'Invalid sheetName');\n  const store=target(settings.storeUrl),maximumResults=integer(settings.maximumResults,1,DEF.max,'maximumResults'),maxCostPerRunUsd=integer(settings.maxCostPerRunUsd,1,3,'maxCostPerRunUsd');\n  return {spreadsheetId,sheetName,maximumResults,maxCostPerRunUsd,targetUrl:store.url,origin:store.origin,scopeKey:'shopify:'+encodeURIComponent(store.url),actorInput:{startUrls:[store.url],workflow:'snapshot',maxProducts:maximumResults,maxBuyerChargeUsd:maxCostPerRunUsd}};\n }\n function classify(response,now=Date.now()){\n  const run=response?.data??response;check(run?.actId===DEF.actorId&&run.buildId===DEF.buildId,'Unexpected Actor or build; inspect the release before continuing');check(/^[A-Za-z0-9]{17}$/.test(run.id??''),'Missing run identity');\n  if(['READY','RUNNING','TIMING-OUT','ABORTING'].includes(run.status)){check(Number.isFinite(Date.parse(run.startedAt))&&now-Date.parse(run.startedAt)<360000,'Polling time budget exhausted; inspect https://console.apify.com/actors/runs/'+run.id);return {ready:false,run};}\n  check(run.status==='SUCCEEDED','Actor '+run.status+': '+String(run.statusMessage??''));check(run.defaultDatasetId&&run.defaultKeyValueStoreId,'Completed run lacks output storage');return {ready:true,run};\n }\n function bounds(summary,config){\n  check(summary.workflow==='snapshot'&&['COMPLETE','CAPPED'].includes(summary.coverageStatus),'Unsafe source coverage: '+summary.coverageStatus);\n  const count=summary.verifiedProducts;check(Number.isInteger(count)&&count>=0&&count<=config.maximumResults,'Summary product count exceeds the declared bound');\n  const coverage=summary.coverage;check(Array.isArray(coverage)&&coverage.length===1,'Missing unique target coverage');const c=coverage[0];\n  check(c.target===config.targetUrl&&c.status===summary.coverageStatus&&c.verifiedProducts===count&&c.unverifiedProducts===0,'Target coverage is incomplete or inconsistent');\n  check(summary.removedProducts===0&&summary.changeCount===0,'Unexpected comparison records in snapshot');\n  return {coverage:summary.coverageStatus,count,expectedDatasetCount:count};\n }\n function datasetBounds(response,summary,config){\n  const metadata=response?.data??response,b=bounds(summary,config);check(Number.isInteger(metadata?.itemCount)&&metadata.itemCount>=0&&metadata.itemCount<=b.count,'Dataset metadata exceeds the declared bound');\n  return {...b,metadataCountLag:metadata.itemCount<b.count};\n }\n function billingReady(run,summary,count,now=Date.now()){\n  check(summary.snapshotRunId===run.id,'OUTPUT belongs to a different run');\n  const prices=run.pricingInfo?.pricingPerEvent?.actorChargeEvents,charged=run.chargedEventCounts;\n  check(run.pricingInfo?.pricingModel==='PAY_PER_EVENT'&&prices&&charged,'Effective event pricing is unavailable');\n  const expected={catalog_checked:1,product:count};let fee=0,ready=true;\n  for(const [name,n]of Object.entries(charged))check(Number.isInteger(n)&&n>=0&&(name in expected||n===0),'Unexpected charged event');\n  for(const [name,n]of Object.entries(expected)){\n   const p=prices[name]?.eventPriceUsd;check(Number.isFinite(p)&&p>=0,'Missing effective price for '+name);fee+=n*p;\n   const actual=charged[name]??0;check(actual<=n,'Native charge count contradicts delivered products');if(actual<n)ready=false;\n  }\n  check(Number.isFinite(summary.expectedBuyerChargeUsd)&&Math.abs(fee-summary.expectedBuyerChargeUsd)<0.0000001,'Source charge estimate contradicts effective prices');\n  if(!ready)check(Number.isFinite(Date.parse(run.startedAt))&&now-Date.parse(run.startedAt)<360000,'Charge settlement time budget exhausted; inspect https://console.apify.com/actors/runs/'+run.id);\n  return ready;\n }\n function billing(run,summary,count){\n  check(billingReady(run,summary,count),'Native charge counters have not settled');const prices=run.pricingInfo.pricingPerEvent.actorChargeEvents;\n  return Number((prices.catalog_checked.eventPriceUsd+count*prices.product.eventPriceUsd).toFixed(8));\n }\n function reconcile({config,run,summary,metadata,rows}){\n  classify(run);const b=datasetBounds(metadata,summary,config);check(rows.length===b.count,'Dataset retrieval is incomplete');\n  const estimatedActorChargeUsd=billing(run,summary,b.count);check(estimatedActorChargeUsd<=config.maxCostPerRunUsd+0.000001,'Charge exceeds configured cap');\n  const seenProducts=new Set(),seenVariants=new Set(),result=[];\n  for(const r of rows){\n   check(r.recordType==='product'&&/^\\d+$/.test(r.productId??'')&&r.title&&r.targetUrl===config.targetUrl,'Product identity or target mismatch');\n   check(r.stableId===config.origin+':'+r.productId&&!seenProducts.has(r.stableId),'Duplicate or invalid product identity');seenProducts.add(r.stableId);\n   const source=target(r.sourceUrl);check(source.origin===config.origin&&/\\/products\\/[^/]+$/.test(source.url)&&r.url===r.sourceUrl,'Product source URL mismatch');\n   check(/^[A-Z]{3}$/.test(r.currency??'')&&Number.isFinite(Date.parse(r.observedAt)),'Missing product currency or observation time');\n   check(Array.isArray(r.variants)&&r.variants.length>0&&r.variantCount===r.variants.length,'Incomplete product variants');\n   check(Number.isFinite(r.price)&&r.price===Math.min(...r.variants.map(v=>v.price))&&r.available===r.variants.some(v=>v.available===true),'Product and variant totals disagree');\n   for(const v of r.variants){\n    check(/^\\d+$/.test(v.variantId??'')&&typeof v.title==='string'&&v.title.length>0&&typeof v.available==='boolean','Missing variant identity or availability');\n    check(Number.isFinite(v.price)&&v.price>=0&&(v.compareAtPrice===null||(Number.isFinite(v.compareAtPrice)&&v.compareAtPrice>=0))&&v.currency===r.currency,'Invalid variant price or currency');\n    check(Array.isArray(v.options)&&v.options.every(o=>typeof o==='string'),'Invalid variant options');\n    const upsertKey=config.scopeKey+':'+encodeURIComponent(r.stableId)+':'+v.variantId;check(!seenVariants.has(upsertKey),'Duplicate variant identity');seenVariants.add(upsertKey);check(seenVariants.size<=500,'More than 500 variant rows; narrow the source URL or product limit');\n    result.push({upsertKey,targetUrl:config.targetUrl,productId:r.productId,productTitle:r.title,vendor:r.vendor,productType:r.productType,productVariantCount:r.variantCount,variantId:v.variantId,variantTitle:v.title,sku:v.sku,options:v.options,price:v.price,compareAtPrice:v.compareAtPrice,currency:v.currency,available:v.available,reviewAction:v.available?'REVIEW_AVAILABLE_VARIANT':'CHECK_UNAVAILABLE_VARIANT',sourceUrl:r.sourceUrl,coverageStatus:b.coverage,maximumResults:config.maximumResults,productsThisRun:b.count,estimatedActorChargeUsd,observedAt:r.observedAt,runUrl:'https://console.apify.com/actors/runs/'+run.id});\n   }\n  }\n  return result.map(row=>Object.fromEntries(DEF.columns.map(k=>[k,cell(k==='variantsThisRun'?result.length:row[k])])));\n }\n return {preflight,classify,bounds,datasetBounds,billingReady,billing,reconcile};\n})(DEF);\nconst bound=$('Check output bounds').item.json; const rows=$input.all().flatMap(i=>Array.isArray(i.json)?i.json:[i.json]); return reconcile({config:$('Validate settings').first().json,run:bound.run,summary:bound.summary,metadata:$('Check dataset count').item.json.metadata,rows}).map(json=>({json}));"
+      }
+    },
+    {
+      "id": "965ba71834c990423b5de8e2",
+      "name": "Upsert review register",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2896,
+        160
+      ],
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Validate settings').first().json.spreadsheetId }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Validate settings').first().json.sheetName }}"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "upsertKey"
+          ],
+          "schema": [
+            {
+              "id": "upsertKey",
+              "displayName": "upsertKey",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "targetUrl",
+              "displayName": "targetUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "productId",
+              "displayName": "productId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "productTitle",
+              "displayName": "productTitle",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "vendor",
+              "displayName": "vendor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "productType",
+              "displayName": "productType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "productVariantCount",
+              "displayName": "productVariantCount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "variantId",
+              "displayName": "variantId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "variantTitle",
+              "displayName": "variantTitle",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "sku",
+              "displayName": "sku",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "options",
+              "displayName": "options",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "price",
+              "displayName": "price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "compareAtPrice",
+              "displayName": "compareAtPrice",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "currency",
+              "displayName": "currency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "available",
+              "displayName": "available",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "reviewAction",
+              "displayName": "reviewAction",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "sourceUrl",
+              "displayName": "sourceUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "coverageStatus",
+              "displayName": "coverageStatus",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "maximumResults",
+              "displayName": "maximumResults",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "productsThisRun",
+              "displayName": "productsThisRun",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "variantsThisRun",
+              "displayName": "variantsThisRun",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "estimatedActorChargeUsd",
+              "displayName": "estimatedActorChargeUsd",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "observedAt",
+              "displayName": "observedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "runUrl",
+              "displayName": "runUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            }
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "d134ba766e003b865d2dbfc6",
+      "name": "Return delivery receipt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3136,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const DEF={\"folder\":\"shopify-variant-review\",\"kind\":\"shopify\",\"actorId\":\"La4H9euBhFoCWqRLs\",\"buildId\":\"CGipOygC9rzmPTrim\",\"tag\":\"shopify-20260908m\",\"slug\":\"shopify-products-price-stock-monitor\",\"label\":\"Shopify\",\"recordType\":\"product\",\"max\":10,\"memory\":512,\"title\":\"Review Shopify variant prices and availability with Apify and Google Sheets\",\"sheet\":\"Variant Review\",\"settings\":{\"storeUrl\":\"https://www.deathwishcoffee.com/products/power-surge-coffee\",\"maximumResults\":10},\"columns\":[\"upsertKey\",\"targetUrl\",\"productId\",\"productTitle\",\"vendor\",\"productType\",\"productVariantCount\",\"variantId\",\"variantTitle\",\"sku\",\"options\",\"price\",\"compareAtPrice\",\"currency\",\"available\",\"reviewAction\",\"sourceUrl\",\"coverageStatus\",\"maximumResults\",\"productsThisRun\",\"variantsThisRun\",\"estimatedActorChargeUsd\",\"observedAt\",\"runUrl\"],\"intro\":\"Give an e-commerce researcher a variant-level price and availability register for a known public Shopify URL. Compare sizes, formats and SKUs in Google Sheets, with observation dates and direct product links.\",\"semantics\":\"Availability describes public buyability, never a stock quantity. A blank compare-at price stays unknown. Each variant has a separate row, but Apify charges per verified product with variants included. The workflow keeps current observations; it does not calculate price changes, delete missing variants or alter a Shopify store.\",\"custom\":\"Use one public Shopify store, collection or product URL. Choose up to 10 products. Delivery stops above 500 variants instead of silently truncating. A maximum is an upper limit, never a promised result count.\"};\nconst {preflight,classify,bounds,datasetBounds,billing,reconcile,billingReady}=(function createRuntime(DEF) {\n const check=(ok,message)=>{if(!ok)throw new Error(message);};\n const integer=(v,min,max,name)=>{v=Number(v);check(Number.isInteger(v)&&v>=min&&v<=max,'Invalid '+name);return v;};\n const cell=v=>v==null?'':Array.isArray(v)?v.join('; '):String(v);\n function target(value){\n  const m=/^https:\\/\\/([a-z0-9](?:[a-z0-9.-]*[a-z0-9])?)(?::443)?((?:\\/[A-Za-z0-9_-]+)*)\\/?$/i.exec(String(value??'').trim());\n  check(m,'Use a clean HTTPS Shopify store, collection or product URL');const host=m[1].toLowerCase(),parts=m[2].split('/').filter(Boolean);\n  check(host.includes('.')&&!/^[0-9.]+$/.test(host)&&!/(^|\\.)(localhost|local|internal|test|invalid|example)$/.test(host)&&host.split('.').every(p=>/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(p)),'Use a public store hostname');\n  const route=[...parts];if(route[0]&&/^[a-z]{2}(?:-[a-z]{2})?$/i.test(route[0]))route.shift();\n  check(route.length===0||(route.length===2&&['products','collections'].includes(route[0])),'Use a store root, collection or product URL');\n  return {url:'https://'+host+(parts.length?'/'+parts.join('/'):''),origin:'https://'+host};\n }\n function preflight(settings){\n  const spreadsheetId=String(settings.spreadsheetId??'').trim(),sheetName=String(settings.sheetName??'').trim();\n  check(/^[A-Za-z0-9_-]{20,}$/.test(spreadsheetId)&&!spreadsheetId.startsWith('REPLACE'),'Set your Google spreadsheet ID before paid work');\n  check(sheetName.length>0&&sheetName.length<=80,'Invalid sheetName');\n  const store=target(settings.storeUrl),maximumResults=integer(settings.maximumResults,1,DEF.max,'maximumResults'),maxCostPerRunUsd=integer(settings.maxCostPerRunUsd,1,3,'maxCostPerRunUsd');\n  return {spreadsheetId,sheetName,maximumResults,maxCostPerRunUsd,targetUrl:store.url,origin:store.origin,scopeKey:'shopify:'+encodeURIComponent(store.url),actorInput:{startUrls:[store.url],workflow:'snapshot',maxProducts:maximumResults,maxBuyerChargeUsd:maxCostPerRunUsd}};\n }\n function classify(response,now=Date.now()){\n  const run=response?.data??response;check(run?.actId===DEF.actorId&&run.buildId===DEF.buildId,'Unexpected Actor or build; inspect the release before continuing');check(/^[A-Za-z0-9]{17}$/.test(run.id??''),'Missing run identity');\n  if(['READY','RUNNING','TIMING-OUT','ABORTING'].includes(run.status)){check(Number.isFinite(Date.parse(run.startedAt))&&now-Date.parse(run.startedAt)<360000,'Polling time budget exhausted; inspect https://console.apify.com/actors/runs/'+run.id);return {ready:false,run};}\n  check(run.status==='SUCCEEDED','Actor '+run.status+': '+String(run.statusMessage??''));check(run.defaultDatasetId&&run.defaultKeyValueStoreId,'Completed run lacks output storage');return {ready:true,run};\n }\n function bounds(summary,config){\n  check(summary.workflow==='snapshot'&&['COMPLETE','CAPPED'].includes(summary.coverageStatus),'Unsafe source coverage: '+summary.coverageStatus);\n  const count=summary.verifiedProducts;check(Number.isInteger(count)&&count>=0&&count<=config.maximumResults,'Summary product count exceeds the declared bound');\n  const coverage=summary.coverage;check(Array.isArray(coverage)&&coverage.length===1,'Missing unique target coverage');const c=coverage[0];\n  check(c.target===config.targetUrl&&c.status===summary.coverageStatus&&c.verifiedProducts===count&&c.unverifiedProducts===0,'Target coverage is incomplete or inconsistent');\n  check(summary.removedProducts===0&&summary.changeCount===0,'Unexpected comparison records in snapshot');\n  return {coverage:summary.coverageStatus,count,expectedDatasetCount:count};\n }\n function datasetBounds(response,summary,config){\n  const metadata=response?.data??response,b=bounds(summary,config);check(Number.isInteger(metadata?.itemCount)&&metadata.itemCount>=0&&metadata.itemCount<=b.count,'Dataset metadata exceeds the declared bound');\n  return {...b,metadataCountLag:metadata.itemCount<b.count};\n }\n function billingReady(run,summary,count,now=Date.now()){\n  check(summary.snapshotRunId===run.id,'OUTPUT belongs to a different run');\n  const prices=run.pricingInfo?.pricingPerEvent?.actorChargeEvents,charged=run.chargedEventCounts;\n  check(run.pricingInfo?.pricingModel==='PAY_PER_EVENT'&&prices&&charged,'Effective event pricing is unavailable');\n  const expected={catalog_checked:1,product:count};let fee=0,ready=true;\n  for(const [name,n]of Object.entries(charged))check(Number.isInteger(n)&&n>=0&&(name in expected||n===0),'Unexpected charged event');\n  for(const [name,n]of Object.entries(expected)){\n   const p=prices[name]?.eventPriceUsd;check(Number.isFinite(p)&&p>=0,'Missing effective price for '+name);fee+=n*p;\n   const actual=charged[name]??0;check(actual<=n,'Native charge count contradicts delivered products');if(actual<n)ready=false;\n  }\n  check(Number.isFinite(summary.expectedBuyerChargeUsd)&&Math.abs(fee-summary.expectedBuyerChargeUsd)<0.0000001,'Source charge estimate contradicts effective prices');\n  if(!ready)check(Number.isFinite(Date.parse(run.startedAt))&&now-Date.parse(run.startedAt)<360000,'Charge settlement time budget exhausted; inspect https://console.apify.com/actors/runs/'+run.id);\n  return ready;\n }\n function billing(run,summary,count){\n  check(billingReady(run,summary,count),'Native charge counters have not settled');const prices=run.pricingInfo.pricingPerEvent.actorChargeEvents;\n  return Number((prices.catalog_checked.eventPriceUsd+count*prices.product.eventPriceUsd).toFixed(8));\n }\n function reconcile({config,run,summary,metadata,rows}){\n  classify(run);const b=datasetBounds(metadata,summary,config);check(rows.length===b.count,'Dataset retrieval is incomplete');\n  const estimatedActorChargeUsd=billing(run,summary,b.count);check(estimatedActorChargeUsd<=config.maxCostPerRunUsd+0.000001,'Charge exceeds configured cap');\n  const seenProducts=new Set(),seenVariants=new Set(),result=[];\n  for(const r of rows){\n   check(r.recordType==='product'&&/^\\d+$/.test(r.productId??'')&&r.title&&r.targetUrl===config.targetUrl,'Product identity or target mismatch');\n   check(r.stableId===config.origin+':'+r.productId&&!seenProducts.has(r.stableId),'Duplicate or invalid product identity');seenProducts.add(r.stableId);\n   const source=target(r.sourceUrl);check(source.origin===config.origin&&/\\/products\\/[^/]+$/.test(source.url)&&r.url===r.sourceUrl,'Product source URL mismatch');\n   check(/^[A-Z]{3}$/.test(r.currency??'')&&Number.isFinite(Date.parse(r.observedAt)),'Missing product currency or observation time');\n   check(Array.isArray(r.variants)&&r.variants.length>0&&r.variantCount===r.variants.length,'Incomplete product variants');\n   check(Number.isFinite(r.price)&&r.price===Math.min(...r.variants.map(v=>v.price))&&r.available===r.variants.some(v=>v.available===true),'Product and variant totals disagree');\n   for(const v of r.variants){\n    check(/^\\d+$/.test(v.variantId??'')&&typeof v.title==='string'&&v.title.length>0&&typeof v.available==='boolean','Missing variant identity or availability');\n    check(Number.isFinite(v.price)&&v.price>=0&&(v.compareAtPrice===null||(Number.isFinite(v.compareAtPrice)&&v.compareAtPrice>=0))&&v.currency===r.currency,'Invalid variant price or currency');\n    check(Array.isArray(v.options)&&v.options.every(o=>typeof o==='string'),'Invalid variant options');\n    const upsertKey=config.scopeKey+':'+encodeURIComponent(r.stableId)+':'+v.variantId;check(!seenVariants.has(upsertKey),'Duplicate variant identity');seenVariants.add(upsertKey);check(seenVariants.size<=500,'More than 500 variant rows; narrow the source URL or product limit');\n    result.push({upsertKey,targetUrl:config.targetUrl,productId:r.productId,productTitle:r.title,vendor:r.vendor,productType:r.productType,productVariantCount:r.variantCount,variantId:v.variantId,variantTitle:v.title,sku:v.sku,options:v.options,price:v.price,compareAtPrice:v.compareAtPrice,currency:v.currency,available:v.available,reviewAction:v.available?'REVIEW_AVAILABLE_VARIANT':'CHECK_UNAVAILABLE_VARIANT',sourceUrl:r.sourceUrl,coverageStatus:b.coverage,maximumResults:config.maximumResults,productsThisRun:b.count,estimatedActorChargeUsd,observedAt:r.observedAt,runUrl:'https://console.apify.com/actors/runs/'+run.id});\n   }\n  }\n  return result.map(row=>Object.fromEntries(DEF.columns.map(k=>[k,cell(k==='variantsThisRun'?result.length:row[k])])));\n }\n return {preflight,classify,bounds,datasetBounds,billingReady,billing,reconcile};\n})(DEF);\nconst rows=$('Build verified Sheet rows').all().map(x=>x.json);return [{json:{status:'SHEETS_WRITTEN',businessRows:rows.length,coverageStatus:rows[0].coverageStatus,estimatedActorChargeUsd:rows[0].estimatedActorChargeUsd,runUrl:rows[0].runUrl}}];"
+      }
+    },
+    {
+      "id": "d742526ea45b4634c927debf",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        -1056
+      ],
+      "parameters": {
+        "content": "## Review Shopify variant prices and availability with Apify and Google Sheets\n\nGive an e-commerce researcher a variant-level price and availability register for a known public Shopify URL. Compare sizes, formats and SKUs in Google Sheets, with observation dates and direct product links.\n\n### How it works\nStart one bounded Apify snapshot for a known public store, collection or product URL. Wait for that run, verify source coverage and settled product charges, then read the complete dataset. Source failures stop before Sheets. COMPLETE covers the declared source window; CAPPED is a limited sample. Empty results create no rows.\n\nEach variant gets its own row and stable key. Repeats update observed variants; earlier unobserved rows remain. Check observation dates before decisions. Availability means public buyability, not an inventory quantity. Products are charged once with their variants included.\n\n### Setup\n1. Create an Apify Header Auth credential: name Authorization, value Bearer followed by your token. Select it on all five HTTP nodes.\n2. Connect Google Sheets OAuth2 on Upsert review register. Create a Variant Review tab and import the supplied header CSV.\n3. Set the spreadsheet ID and one source URL in Review settings. Choose at most 10 products; delivery stops above 500 variants.\n4. Run manually and sequentially. The same source URL keeps stable keys when the product limit changes.\n\nThe default $1 cap is a ceiling, not a quoted price. The template is free; Apify usage is paid, including repeat runs.",
+        "width": 1120,
+        "height": 900
+      }
+    },
+    {
+      "id": "d07126d02ce9aacdae567cda",
+      "name": "Configure",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        0
+      ],
+      "parameters": {
+        "content": "## 1. Configure\nSet source filters, a result limit and your Sheet destination. Missing settings stop before paid work.",
+        "width": 800,
+        "height": 720,
+        "color": 7
+      }
+    },
+    {
+      "id": "54757817ba094a47add22457",
+      "name": "Run",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        784,
+        0
+      ],
+      "parameters": {
+        "content": "## 2. Run once and wait\nOnly the first HTTP call starts paid work. Poll the same run. Failures stop before delivery.",
+        "width": 832,
+        "height": 720,
+        "color": 7
+      }
+    },
+    {
+      "id": "fe72c218417fd7a8c2e3e947",
+      "name": "Verify",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        0
+      ],
+      "parameters": {
+        "content": "## 3. Verify products and charges\nWait for native charges to settle. Check target coverage and all products before expanding variants. Incomplete data stops delivery.",
+        "width": 832,
+        "height": 720,
+        "color": 7
+      }
+    },
+    {
+      "id": "3d604efaa1872b626da29c7b",
+      "name": "Review",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2560,
+        0
+      ],
+      "parameters": {
+        "content": "## 4. Review variant prices\nKeep one row per variant and source scope. Filter unavailable variants and review source links. Only Sheets delivery retries automatically.",
+        "width": 832,
+        "height": 720,
+        "color": 7
+      }
+    },
+    {
+      "id": "3864103cd6be159ce96c2614",
+      "name": "Charges settled?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2256,
+        160
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fd0695c733b383d2d6046826",
+              "leftValue": "={{ $json.settled }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Start manually": {
+      "main": [
+        [
+          {
+            "node": "Review settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Review settings": {
+      "main": [
+        [
+          {
+            "node": "Validate settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate settings": {
+      "main": [
+        [
+          {
+            "node": "Run Shopify once",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Shopify once": {
+      "main": [
+        [
+          {
+            "node": "Check run status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check run status": {
+      "main": [
+        [
+          {
+            "node": "Run finished?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run finished?": {
+      "main": [
+        [
+          {
+            "node": "Read authoritative output",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait five seconds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read authoritative output": {
+      "main": [
+        [
+          {
+            "node": "Check output bounds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check output bounds": {
+      "main": [
+        [
+          {
+            "node": "Charges settled?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read dataset metadata": {
+      "main": [
+        [
+          {
+            "node": "Check dataset count",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check dataset count": {
+      "main": [
+        [
+          {
+            "node": "Read complete bounded dataset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read complete bounded dataset": {
+      "main": [
+        [
+          {
+            "node": "Build verified Sheet rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build verified Sheet rows": {
+      "main": [
+        [
+          {
+            "node": "Upsert review register",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert review register": {
+      "main": [
+        [
+          {
+            "node": "Return delivery receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait five seconds": {
+      "main": [
+        [
+          {
+            "node": "Read existing run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read existing run": {
+      "main": [
+        [
+          {
+            "node": "Check run status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Charges settled?": {
+      "main": [
+        [
+          {
+            "node": "Read dataset metadata",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait five seconds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "executionTimeout": 480
+  },
+  "pinData": {},
+  "tags": []
+}

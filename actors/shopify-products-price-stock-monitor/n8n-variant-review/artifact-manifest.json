@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "actor": "luminar/shopify-products-price-stock-monitor",
+  "buildId": "CGipOygC9rzmPTrim",
+  "buildTag": "shopify-20260908m",
+  "recordedAt": "2026-09-08T00:05:43.290Z",
+  "environment": "local n8n Community Edition 2.37.10",
+  "files": {
+    "README.md": "91152045e30ef6555dda20391be9ab2881a9fb8ad680fcb2de80c0137417b45f",
+    "workflow.json": "ffdd7297c380d6106cceb1f2c5f49ab3d9e65fad42ca89360a04ff95a2d5a9b4",
+    "sheet-header.csv": "47eaa345b3ab37df622770fd5df150c90f9a59dd38982a5be56e5bcf54c8faec",
+    "workflow.png": "afc7acd1187d2dfa99d8bc326535a422cb6cae503c7da6ce360dfd2465b1c329"
+  },
+  "validation": {
+    "credentialedRuns": 2,
+    "rowsBefore": 0,
+    "rowsAfterFirst": 8,
+    "rowsAfterRepeat": 8,
+    "duplicateKeys": 0,
+    "coverage": [
+      "COMPLETE",
+      "COMPLETE"
+    ]
+  },
+  "creatorStatus": "Prepared for submission; import the JSON directly."
+}
